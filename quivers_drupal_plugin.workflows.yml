@@ -1,0 +1,32 @@
+quivers_drupal_plugin_fulfillment_processing:
+  id: quivers_drupal_plugin_fulfillment_processing
+  group: commerce_order
+  label: 'Quivers Integration'
+  states:
+    draft:
+      label: Draft
+    validation:
+      label: Validation
+    readytofulfill:
+      label: Ready for Fulfillment
+    completed:
+      label: Completed
+    canceled:
+      label: Canceled
+  transitions:
+    place:
+      label: 'Place order'
+      from: [draft]
+      to: validation
+    validate:
+      label: 'Validate order'
+      from: [validation]
+      to: readytofulfill
+    fulfill:
+      label: 'Fulfill order'
+      from: [readytofulfill]
+      to: completed
+    cancel:
+      label: 'Cancel order'
+      from: [readytofulfill, draft, validation]
+      to: canceled
