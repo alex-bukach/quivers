@@ -1,1 +1,0 @@
-Quivers Drupal Plugin

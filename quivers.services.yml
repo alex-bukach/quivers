@@ -1,0 +1,13 @@
+services:
+  quivers.commit_transaction_subscriber:
+    class: Drupal\quivers\EventSubscriber\CommitTransactionSubscriber
+    tags:
+      - {name: event_subscriber}
+
+  quivers.client_factory:
+    class: '\Drupal\quivers\ClientFactory'
+    arguments: ['@http_client_factory']
+
+  quivers.quiverstax_lib:
+    class: '\Drupal\quivers\QuiverstaxLib'
+    arguments: ['@quivers.client_factory', '@config.factory']

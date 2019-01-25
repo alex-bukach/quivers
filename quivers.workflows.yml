@@ -1,0 +1,44 @@
+quivers_fulfillment_processing:
+  id: quivers_fulfillment_processing
+  group: commerce_order
+  label: 'Quivers Integration'
+  states:
+    draft:
+      label: Draft
+    readytofulfill:
+      label: Ready for Fulfillment
+    completed:
+      label: Completed
+    canceled:
+      label: Canceled
+    returned:
+      label: Returned
+    processing:
+      label: Processing
+    closed:
+      label: Closed
+  transitions:
+    place:
+      label: 'Place order'
+      from: [draft]
+      to: readytofulfill
+    process:
+      label: 'Process Order'
+      from: [readytofulfill]
+      to: processing
+    fulfill:
+      label: 'Fulfill order'
+      from: [readytofulfill, processing]
+      to: completed
+    cancel:
+      label: 'Cancel order'
+      from: [readytofulfill, draft, processing]
+      to: canceled
+    close:
+      label: 'Close Order'
+      from: [readytofulfill, processing]
+      to: closed
+    return:
+      label: 'Return Order'
+      from: [completed, closed]
+      to: returned

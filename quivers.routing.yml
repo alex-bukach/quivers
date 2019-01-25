@@ -1,0 +1,7 @@
+quivers.config_settings:
+  path: '/admin/commerce/config/quivers'
+  defaults:
+    _form: 'Drupal\quivers\Form\ConfigSettingsForm'
+    _title: 'Quivers Integration Settings'
+  requirements:
+    _permission: 'administer quivers'
