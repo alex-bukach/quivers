@@ -40,7 +40,7 @@ class ConfigSettingsForm extends ConfigFormBase {
    *   The module handler.
    */
   public function __construct(ConfigFactoryInterface $config_factory, MessengerInterface $messenger, ModuleHandlerInterface $module_handler) {
-    parent::__construct($config_factory); 
+    parent::__construct($config_factory);
     $this->messenger = $messenger;
     $this->moduleHandler = $module_handler;
   }
@@ -170,14 +170,16 @@ class ConfigSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('drupal_integration_auth_token'),
       '#required' => FALSE,
     ];
-    
+
     return parent::buildForm($form, $form_state);
   }
 
   /**
    * Ajax callback for validation.
+   * @param array $form
+   * @return mixed
    */
-  public function validateCredentials(array &$form, FormStateInterface $form_state) {
+  public function validateCredentials(array &$form) {
     return $form['configuration'];
   }
 

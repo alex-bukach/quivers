@@ -2,14 +2,10 @@
 
 namespace Drupal\quivers\Plugin\Commerce\TaxType;
 
-use Drupal\quivers\QuiverstaxLib;
 use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_order\Adjustment;
 use Drupal\commerce_price\Price;
 use Drupal\commerce_tax\Plugin\Commerce\TaxType\RemoteTaxTypeBase;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Provides the Quiverstax remote tax type.
@@ -26,8 +22,8 @@ class Quiverstax extends RemoteTaxTypeBase {
    */
   public function defaultConfiguration() {
     return [
-      'display_inclusive' => FALSE,
-    ] + parent::defaultConfiguration();
+        'display_inclusive' => FALSE,
+      ] + parent::defaultConfiguration();
   }
 
   /**
@@ -49,18 +45,15 @@ class Quiverstax extends RemoteTaxTypeBase {
       return;
     }
     if ( is_null($order_tax) ) {
-      \Drupal::logger('quivers')->error("Tax from quivers is null: ".$order_tax);
       return;
     }
 
-    $order_initial_adjustments = $order->getAdjustments();
     $currency_code = $order->getTotalPrice() ? $order->getTotalPrice()->getCurrencyCode() : $order->getStore()->getDefaultCurrencyCode();
-    array_push($order_initial_adjustments, new Adjustment([
-        'type' => 'tax',
-        'label' => 'Tax',
-        'amount' => new Price((string) $order_tax, $currency_code),
-      ]));
-    $order->setAdjustments($order_initial_adjustments);
+    $order->addAdjustment(new Adjustment([
+      'type' => 'tax',
+      'label' => 'Tax',
+      'amount' => new Price((string) $order_tax, $currency_code),
+    ]));
   }
 
 }

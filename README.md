@@ -17,6 +17,11 @@ Step 2: Go to `Commerce > Configuration > Quivers Integration Settings`. Select 
 
 Step 3: Go to `Commerce > Configuration > Tax types > Edit > + Add tax type`. Name it 'quiverstax' and Select 'Quiverstax' in 'Plugin' dropdown.
 
+## Note
+
+Go to `Commerce > Configuration > Checkout flows > Shipping > Edit`.
+Make sure Transaction mode for 'Payment process' is set to 'Authorize only'.
+
 ## To make a .tar.gz module
 
 Clone the repo, `rm -rf <Project repo>/.git`, `mv quivers.plugin.drupal quivers`, `tar -czvf quivers.tar.gz quivers`

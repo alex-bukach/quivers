@@ -25,7 +25,7 @@ class ClientFactory {
   /**
    * Gets an API client instance.
    *
-   * @param array $config
+   * @param $config
    *   The config for the client.
    *
    * @return \GuzzleHttp\Client
