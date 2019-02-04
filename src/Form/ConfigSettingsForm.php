@@ -2,57 +2,21 @@
 
 namespace Drupal\quivers\Form;
 
-use Drupal\Component\Serialization\Json;
-use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\ConfigFormBase;
-use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Configuration form for Avatax settings.
+ * Configuration form for Quivers Tax settings.
  */
 class ConfigSettingsForm extends ConfigFormBase {
-
-  /**
-   * The messenger.
-   *
-   * @var \Drupal\Core\Messenger\MessengerInterface
-   */
-  protected $messenger;
-
-  /**
-   * The module handler.
-   *
-   * @var \Drupal\Core\Extension\ModuleHandlerInterface
-   */
-  protected $moduleHandler;
-
-  /**
-   * Constructs a ConfigSettingsForm object.
-   *
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The factory for configuration objects.
-   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
-   *   The messenger.
-   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
-   *   The module handler.
-   */
-  public function __construct(ConfigFactoryInterface $config_factory, MessengerInterface $messenger, ModuleHandlerInterface $module_handler) {
-    parent::__construct($config_factory);
-    $this->messenger = $messenger;
-    $this->moduleHandler = $module_handler;
-  }
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('config.factory'),
-      $container->get('messenger'),
-      $container->get('module_handler')
+      $container->get('config.factory')
     );
   }
 
@@ -84,55 +48,50 @@ class ConfigSettingsForm extends ConfigFormBase {
     ];
     $form['configuration']['api_mode'] = [
       '#type' => 'radios',
-      '#title' => $this->t('Quivers Sandbox Enabled:'),
+      '#title' => $this->t('API mode:'),
       '#default_value' => $config->get('api_mode'),
       '#options' => [
-        'development' => $this->t('Yes'),
-        'production' => $this->t('No'),
+        'development' => $this->t('Development'),
+        'production' => $this->t('Production'),
       ],
       '#required' => TRUE,
+      '#description' => $this->t('The mode to use when calculating taxes.'),
     ];
-    $form['configuration']['aud'] = [
+    $form['configuration']['aud_marketplace'] = [
       '#type' => 'textfield',
       '#title' => $this->t('AUD Marketplace ID:'),
       '#default_value' => $config->get('aud'),
       '#required' => TRUE,
     ];
-    $form['configuration']['cad'] = [
+    $form['configuration']['cad_marketplace'] = [
       '#type' => 'textfield',
       '#title' => $this->t('CAD Marketplace ID:'),
       '#default_value' => $config->get('cad'),
       '#required' => TRUE,
     ];
-    $form['configuration']['eur'] = [
+    $form['configuration']['eur_marketplace'] = [
       '#type' => 'textfield',
       '#title' => $this->t('EUR Marketplace ID:'),
       '#default_value' => $config->get('eur'),
       '#required' => TRUE,
     ];
-    $form['configuration']['gbp'] = [
+    $form['configuration']['gbp_marketplace'] = [
       '#type' => 'textfield',
       '#title' => $this->t('GBP Marketplace ID:'),
       '#default_value' => $config->get('gbp'),
       '#required' => TRUE,
     ];
-    $form['configuration']['jpy'] = [
+    $form['configuration']['jpy_marketplace'] = [
       '#type' => 'textfield',
       '#title' => $this->t('JPY Marketplace ID:'),
       '#default_value' => $config->get('jpy'),
       '#required' => TRUE,
     ];
-    $form['configuration']['usd'] = [
+    $form['configuration']['usd_marketplace'] = [
       '#type' => 'textfield',
       '#title' => $this->t('USD Marketplace ID:'),
       '#default_value' => $config->get('usd'),
       '#required' => TRUE,
-    ];
-    $form['configuration']['default_tax_code'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Default Tax Code:'),
-      '#default_value' => $config->get('default_tax_code'),
-      '#required' => FALSE,
     ];
     $form['configuration']['claiming_groups'] = [
       '#type' => 'textfield',
@@ -145,30 +104,14 @@ class ConfigSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Quivers API Key:'),
       '#default_value' => $config->get('quivers_api_key'),
       '#required' => TRUE,
+      '#description' => $this->t('Quivers API Key to send to Quivers when calculating taxes.'),
     ];
     $form['configuration']['business_refid'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Business RefId:'),
       '#default_value' => $config->get('business_refid'),
       '#required' => TRUE,
-    ];
-    $form['configuration']['drupal_integration_base_url'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Drupal Integration Base URL:'),
-      '#default_value' => $config->get('drupal_integration_base_url'),
-      '#required' => FALSE,
-    ];
-    $form['configuration']['drupal_integration_username'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Drupal Integration Username:'),
-      '#default_value' => $config->get('drupal_integration_username'),
-      '#required' => FALSE,
-    ];
-    $form['configuration']['drupal_integration_auth_token'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Drupal Integration Auth Token:'),
-      '#default_value' => $config->get('drupal_integration_auth_token'),
-      '#required' => FALSE,
+      '#description' => $this->t('Quivers Business Id to send to Quivers when calculating taxes.'),
     ];
 
     return parent::buildForm($form, $form_state);
@@ -176,8 +119,12 @@ class ConfigSettingsForm extends ConfigFormBase {
 
   /**
    * Ajax callback for validation.
+   *
    * @param array $form
+   *   Array of configuration form.
+   *
    * @return mixed
+   *   Return configuration Form.
    */
   public function validateCredentials(array &$form) {
     return $form['configuration'];
@@ -186,29 +133,18 @@ class ConfigSettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    parent::validateForm($form, $form_state);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->config('quivers.settings')
       ->set('api_mode', $form_state->getValue('api_mode'))
-      ->set('aud', $form_state->getValue('aud'))
-      ->set('eur', $form_state->getValue('eur'))
-      ->set('cad', $form_state->getValue('cad'))
-      ->set('gbp', $form_state->getValue('gbp'))
-      ->set('jpy', $form_state->getValue('jpy'))
-      ->set('usd', $form_state->getValue('usd'))
-      ->set('default_tax_code', $form_state->getValue('default_tax_code'))
+      ->set('aud_marketplace', $form_state->getValue('aud_marketplace'))
+      ->set('eur_marketplace', $form_state->getValue('eur_marketplace'))
+      ->set('cad_marketplace', $form_state->getValue('cad_marketplace'))
+      ->set('gbp_marketplace', $form_state->getValue('gbp_marketplace'))
+      ->set('jpy_marketplace', $form_state->getValue('jpy_marketplace'))
+      ->set('usd_marketplace', $form_state->getValue('usd_marketplace'))
       ->set('claiming_groups', $form_state->getValue('claiming_groups'))
       ->set('quivers_api_key', $form_state->getValue('quivers_api_key'))
       ->set('business_refid', $form_state->getValue('business_refid'))
-      ->set('drupal_integration_base_url', $form_state->getValue('drupal_integration_base_url'))
-      ->set('drupal_integration_username', $form_state->getValue('drupal_integration_username'))
-      ->set('drupal_integration_auth_token', $form_state->getValue('drupal_integration_auth_token'))
       ->save();
 
     parent::submitForm($form, $form_state);

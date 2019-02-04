@@ -12,48 +12,47 @@ use Drupal\commerce_tax\Plugin\Commerce\TaxType\RemoteTaxTypeBase;
  *
  * @CommerceTaxType(
  *   id = "quiverstax",
- *   label = "Quiverstax",
+ *   label = "Quivers Tax",
  * )
  */
-class Quiverstax extends RemoteTaxTypeBase {
+class QuiversTax extends RemoteTaxTypeBase {
 
   /**
    * {@inheritdoc}
    */
   public function defaultConfiguration() {
     return [
-        'display_inclusive' => FALSE,
-      ] + parent::defaultConfiguration();
+      'display_inclusive' => FALSE,
+    ] + parent::defaultConfiguration();
   }
 
   /**
    * {@inheritdoc}
    */
   public function apply(OrderInterface $order) {
-    // order shipping address not found, Don't Process further
-    if (!$order->hasField('shipments') || $order->get('shipments')->isEmpty()) {
-      return;
+    $quivers_services = \Drupal::service('quivers.quivers_services');
+    try {
+      $order_item_taxes = $quivers_services->calculateValidateTax($order);
     }
-
-    $quiverstax_lib = \Drupal::service('quivers.quiverstax_lib');
-    $order_tax = $quiverstax_lib->getQuiversValidateTax($order);
-    if ( $order_tax == 'FAILED' ) {
-      $order_tax = $quiverstax_lib->getQuiversCountriesTax($order);
-    }
-    if ( $order_tax == 'FAILED' ) {
-      \Drupal::logger('quivers')->error("Quivers API's Failed: ".$order_tax);
-      return;
-    }
-    if ( is_null($order_tax) ) {
-      return;
+    catch (\Exception $e) {
+      // Validate API failed to get Taxes.
+      // use Countries Tax Rate.
+      $order_item_taxes = $quivers_services->calculateCountryTax($order);
     }
 
     $currency_code = $order->getTotalPrice() ? $order->getTotalPrice()->getCurrencyCode() : $order->getStore()->getDefaultCurrencyCode();
-    $order->addAdjustment(new Adjustment([
-      'type' => 'tax',
-      'label' => 'Tax',
-      'amount' => new Price((string) $order_tax, $currency_code),
-    ]));
+
+    foreach ($order->getItems() as $item) {
+      if (isset($order_item_taxes[$item->uuid()])) {
+        $item->addAdjustment(new Adjustment([
+          'type' => 'tax',
+          'label' => $this->t('Tax'),
+          'amount' => new Price((string) $order_item_taxes[$item->uuid()], $currency_code),
+          'source_id' => $this->pluginId . '|' . $this->entityId,
+        ]));
+      }
+    }
+
   }
 
 }

@@ -1,6 +1,6 @@
 quivers.config_settings:
-  title: 'Quivers Integration Settings'
+  title: 'Quivers Settings'
   route_name: 'quivers.config_settings'
   parent: 'commerce.store_configuration'
-  description: 'Configure settings for Quivers'
+  description: 'Configure settings for Quivers.'
   weight: -20

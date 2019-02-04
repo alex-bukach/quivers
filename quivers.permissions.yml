@@ -1,0 +1,4 @@
+quivers edit_permissions:
+  title: 'Edit Permission'
+  description: 'Allow users to edit Quivers Tax settings.'
+  restrict access: true

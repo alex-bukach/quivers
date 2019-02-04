@@ -1,0 +1,9 @@
+{
+  "name": "drupal/quivers",
+  "type": "drupal-module",
+  "description": "Quivers Tax integration for Drupal Commerce.",
+  "keywords": ["Drupal", "Commerce", "Quivers", "QuiversTax"],
+  "require": {
+    "drupal/commerce": "^2.0"
+  }
+}

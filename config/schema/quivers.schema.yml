@@ -1,31 +1,28 @@
 quivers.settings:
   type: config_object
-  label: 'Quivers Integration settings'
+  label: 'Quivers settings'
   mapping:
     api_mode:
       type: string
-      label: 'Quivers Sandbox Enabled'
-    aud:
+      label: 'API mode'
+    aud_marketplace:
       type: string
       label: 'AUD Marketplace ID'
-    cad:
+    cad_marketplace:
       type: string
       label: 'CAD Marketplace ID'
-    eur:
+    eur_marketplace:
       type: string
       label: 'EUR Marketplace ID'
-    gbp:
+    gbp_marketplace:
       type: string
       label: 'GBP Marketplace ID'
-    jpy:
+    jpy_marketplace:
       type: string
       label: 'JPY Marketplace ID'
-    usd:
+    usd_marketplace:
       type: string
       label: 'USD Marketplace ID'
-    default_tax_code:
-      type: string
-      label: 'Default Tax Code'
     claiming_groups:
       type: string
       label: 'Claiming Groups'
@@ -35,13 +32,3 @@ quivers.settings:
     business_refid:
       type: string
       label: 'Business RefId'
-    drupal_integration_base_url:
-      type: string
-      label: 'Drupal Integration Base URL'
-    drupal_integration_username:
-      type: string
-      label: 'Drupal Integration Username'
-    drupal_integration_auth_token:
-      type: string
-      label: 'Drupal Integration Auth Token'
-

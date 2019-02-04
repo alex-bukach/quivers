@@ -1,7 +1,7 @@
 quivers_fulfillment_processing:
   id: quivers_fulfillment_processing
   group: commerce_order
-  label: 'Quivers Integration'
+  label: 'Quivers Order Fulfilment'
   states:
     draft:
       label: Draft

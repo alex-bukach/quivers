@@ -1,27 +1,33 @@
-# Quivers for Drupal 8.x + Commerce 2.x
+INTRODUCTION
+------------
+This module has Custom Drupal Order Workflows with Quivers-Tax Plugin.
 
-This module has Custom Drupal Order Workflows with Quivers-Tax Plugin, and Admin Returns.
+REQUIREMENTS
+------------
+This module requires the following:
+* Submodules of Drupal Commerce package (https://drupal.org/project/commerce)
+  - Commerce core
+  - Commerce Order
+  - Commerce Store
+  - Commerce Tax
 
-## Pre-Installation
+INSTALLATION
+------------
+* This module can be installed with any one of the following extensions
+zip, tar, tgz, gz or bz2 of the repo.
 
-Install the project dependencies.
 
-
-## Post-Installation
-
-After installing the module, 
-
-Step 1: Go to `Commerce > Configuration > Order Types > Edit > Workflow`. You will see a list, you must pick 'Quivers Integration'. 
-
-Step 2: Go to `Commerce > Configuration > Quivers Integration Settings`. Select Quivers Sandbox Enabled as 'Yes' for development mode, and 'No' for Live Mode. Enter Quivers Marketplace Id's for the selected mode. Enter Claiming Groups, Quivers API Key and Business RefId.
-
-Step 3: Go to `Commerce > Configuration > Tax types > Edit > + Add tax type`. Name it 'quiverstax' and Select 'Quiverstax' in 'Plugin' dropdown.
-
-## Note
-
-Go to `Commerce > Configuration > Checkout flows > Shipping > Edit`.
-Make sure Transaction mode for 'Payment process' is set to 'Authorize only'.
-
-## To make a .tar.gz module
-
-Clone the repo, `rm -rf <Project repo>/.git`, `mv quivers.plugin.drupal quivers`, `tar -czvf quivers.tar.gz quivers`
+CONFIGURATION
+-------------
+* Select an Order-Type:
+  Go to Commerce > Configuration > Order Types > Edit > Workflow
+  'Quivers Order Fulfilment'
+* Update IDs Provided by your project manager at Quivers 
+  in Quivers Settings.
+  Go to Administration > Commerce > Configuration > Quivers Settings
+* Add a new Tax type -> Quivers Tax.
+  Administration > Commerce > Configuration > Tax Types > Add new tax type.
+  Name it and Select 'Quivers Tax' in 'Plugin' options.
+* Go to Commerce > Configuration > Checkout flows > Shipping > Edit.
+  Make sure Transaction mode for 'Payment process' is set to
+  'Authorize only'.
