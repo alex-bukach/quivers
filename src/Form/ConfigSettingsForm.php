@@ -93,26 +93,6 @@ class ConfigSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('usd'),
       '#required' => TRUE,
     ];
-    $form['configuration']['claiming_groups'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Claiming Groups:'),
-      '#default_value' => $config->get('claiming_groups'),
-      '#required' => TRUE,
-    ];
-    $form['configuration']['quivers_api_key'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Quivers API Key:'),
-      '#default_value' => $config->get('quivers_api_key'),
-      '#required' => TRUE,
-      '#description' => $this->t('Quivers API Key to send to Quivers when calculating taxes.'),
-    ];
-    $form['configuration']['business_refid'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Business RefId:'),
-      '#default_value' => $config->get('business_refid'),
-      '#required' => TRUE,
-      '#description' => $this->t('Quivers Business Id to send to Quivers when calculating taxes.'),
-    ];
 
     return parent::buildForm($form, $form_state);
   }
@@ -142,9 +122,6 @@ class ConfigSettingsForm extends ConfigFormBase {
       ->set('gbp_marketplace', $form_state->getValue('gbp_marketplace'))
       ->set('jpy_marketplace', $form_state->getValue('jpy_marketplace'))
       ->set('usd_marketplace', $form_state->getValue('usd_marketplace'))
-      ->set('claiming_groups', $form_state->getValue('claiming_groups'))
-      ->set('quivers_api_key', $form_state->getValue('quivers_api_key'))
-      ->set('business_refid', $form_state->getValue('business_refid'))
       ->save();
 
     parent::submitForm($form, $form_state);

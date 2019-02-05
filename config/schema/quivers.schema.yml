@@ -23,12 +23,3 @@ quivers.settings:
     usd_marketplace:
       type: string
       label: 'USD Marketplace ID'
-    claiming_groups:
-      type: string
-      label: 'Claiming Groups'
-    quivers_api_key:
-      type: string
-      label: 'Quivers API key'
-    business_refid:
-      type: string
-      label: 'Business RefId'

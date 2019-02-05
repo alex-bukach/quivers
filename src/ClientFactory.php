@@ -39,7 +39,7 @@ class ClientFactory {
 
       case 'development':
       default:
-        $base_uri = 'https://api.quiversdemo.com/v1/';
+        $base_uri = 'https://api.quiverstest.com/v1/';
         break;
     }
 

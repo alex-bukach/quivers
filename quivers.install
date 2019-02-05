@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * Contains runtime functions for Quivers.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function quivers_requirements($phase) {
+  $requirements = [];
+  if ($phase == 'runtime') {
+    // Let's check if PHP OAuth 2.0 Server is installed.
+    if (!class_exists('League\OAuth2\Server\AuthorizationServer')) {
+      $requirements['league/oauth2-server'] = [
+        'description' => t('Quivers requires the league/oauth2-server.'),
+        'severity' => REQUIREMENT_WARNING,
+      ];
+    }
+
+  }
+
+  return $requirements;
+}
