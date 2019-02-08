@@ -17,9 +17,9 @@ use GuzzleHttp\Exception\ClientException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Quivers Services.
+ * Quivers Service.
  */
-class QuiversServices {
+class QuiversService {
 
   /**
    * The Quivers Tax configuration.
@@ -226,9 +226,9 @@ class QuiversServices {
       return $order_item_taxes;
     }
     foreach ($validate_tax_data['result']['items'] as $order_item_tax_data) {
-      $order_item_tax = NULL;
-      if (!empty($order_item_tax_data['pricing']['taxes'])) {
-        $order_item_tax = (float) $order_item_tax_data['pricing']['taxes'][0]['amount'];
+      $order_item_tax = 0;
+      foreach ($order_item_tax_data['pricing']['taxes'] as $validate_tax) {
+        $order_item_tax = $order_item_tax + $validate_tax['amount'];
       }
       $order_item_taxes[$order_item_tax_data['variantRefId']] = $order_item_tax;
     }
@@ -383,21 +383,23 @@ class QuiversServices {
    *   Quivers MarketplaceID or NULL.
    */
   protected function getMarketPlaceId(OrderInterface $order) {
-    $currency_code = $order->getTotalPrice() ? $order->getTotalPrice()->getCurrencyCode() : $order->getStore()->getDefaultCurrencyCode();
-    // Get quivers marketplace id for particular price type.
-    $price_types = ['aud', 'cad', 'eur', 'gbp', 'jpy', 'usd'];
-    if (in_array(strtolower($currency_code), $price_types)) {
-      $marketplace_id = $this->quiversConfig->get(strtolower($currency_code) . '_marketplace');
-      if ($marketplace_id === NULL || $marketplace_id === "") {
-        $this->logger->error("Quivers Marketplace NOT configured for currency - " . $currency_code);
-        return NULL;
+    $marketplace_id = NULL;
+    $order_store_id = $order->getStore()->uuid();
+    // Get quivers marketplace id for order store uuid.
+    $marketplace_mappings = $this->quiversConfig->get('marketplaces');
+    foreach ($marketplace_mappings as $mapping) {
+      if ($mapping['store_id'] === $order_store_id) {
+        $marketplace_id = $mapping['quivers_marketplace_id'];
+        break;
       }
-      return $marketplace_id;
     }
-    else {
-      $this->logger->error("Currency not supported by Quivers Marketplace - " . $currency_code);
-      return NULL;
+    if ($marketplace_id === "") {
+      // If somehow Marketplace is not configured
+      // for the store correctly and Quivers Tax enabled.
+      $this->logger->error("Quivers Marketplace NOT configured for store id - " . $order_store_id);
+      $marketplace_id = NULL;
     }
+    return $marketplace_id;
   }
 
   /**

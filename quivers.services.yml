@@ -3,6 +3,10 @@ services:
     class: '\Drupal\quivers\ClientFactory'
     arguments: ['@http_client_factory']
 
-  quivers.quivers_services:
-    class: '\Drupal\quivers\QuiversServices'
+  quivers.quivers_service:
+    class: '\Drupal\quivers\QuiversService'
     arguments: ['@quivers.client_factory', '@config.factory', '@event_dispatcher', '@logger.factory']
+
+  quivers.quivers_middleware_service:
+    class: '\Drupal\quivers\QuiversMiddlewareService'
+    arguments: ['@quivers.client_factory', '@config.factory']

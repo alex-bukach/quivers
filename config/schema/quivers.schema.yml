@@ -5,21 +5,30 @@ quivers.settings:
     api_mode:
       type: string
       label: 'API mode'
-    aud_marketplace:
+    business_refid:
       type: string
-      label: 'AUD Marketplace ID'
-    cad_marketplace:
+      label: 'Business RefId'
+    quivers_api_key:
       type: string
-      label: 'CAD Marketplace ID'
-    eur_marketplace:
+      label: 'Quivers API key'
+    drupal_api_base_url:
       type: string
-      label: 'EUR Marketplace ID'
-    gbp_marketplace:
+      label: 'Drupal API Base URL'
+    marketplaces:
+      type: sequence
+      label: 'Marketplaces'
+      sequence:
+        type: quivers_marketplace_configuration
+
+quivers_marketplace_configuration:
+  type: mapping
+  mapping:
+    store_id:
       type: string
-      label: 'GBP Marketplace ID'
-    jpy_marketplace:
+      label: 'Store Id'
+    quivers_marketplace_id:
       type: string
-      label: 'JPY Marketplace ID'
-    usd_marketplace:
+      label: 'Quivers Marketplace Id'
+    quivers_claiming_group_ids:
       type: string
-      label: 'USD Marketplace ID'
+      label: 'Quviers Claiming Groups Ids'

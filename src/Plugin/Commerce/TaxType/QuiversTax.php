@@ -30,14 +30,14 @@ class QuiversTax extends RemoteTaxTypeBase {
    * {@inheritdoc}
    */
   public function apply(OrderInterface $order) {
-    $quivers_services = \Drupal::service('quivers.quivers_services');
+    $quivers_service = \Drupal::service('quivers.quivers_service');
     try {
-      $order_item_taxes = $quivers_services->calculateValidateTax($order);
+      $order_item_taxes = $quivers_service->calculateValidateTax($order);
     }
     catch (\Exception $e) {
       // Validate API failed to get Taxes.
       // use Countries Tax Rate.
-      $order_item_taxes = $quivers_services->calculateCountryTax($order);
+      $order_item_taxes = $quivers_service->calculateCountryTax($order);
     }
 
     $currency_code = $order->getTotalPrice() ? $order->getTotalPrice()->getCurrencyCode() : $order->getStore()->getDefaultCurrencyCode();

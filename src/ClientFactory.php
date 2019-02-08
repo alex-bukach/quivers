@@ -53,4 +53,35 @@ class ClientFactory {
     return $this->clientFactory->fromOptions($options);
   }
 
+  /**
+   * Gets an API client instance for Quivers - Middleware.
+   *
+   * @param array $config
+   *   The config for the client.
+   *
+   * @return \GuzzleHttp\Client
+   *   The API client.
+   */
+  public function createMiddlewareInstance(array $config) {
+    switch ($config['api_mode']) {
+      case 'production':
+        $base_uri = 'https://middleware.quivers.com';
+        break;
+
+      case 'development':
+      default:
+        $base_uri = 'https://middleware.quiverstest.com';
+        break;
+    }
+
+    $options = [
+      'base_uri' => $base_uri,
+      'headers' => [
+        'Content-Type' => 'application/json',
+      ],
+    ];
+
+    return $this->clientFactory->fromOptions($options);
+  }
+
 }

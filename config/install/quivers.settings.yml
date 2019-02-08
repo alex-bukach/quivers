@@ -1,7 +1,5 @@
 api_mode: development
-aud_marketplace: ''
-cad_marketplace: ''
-eur_marketplace: ''
-gbp_marketplace: ''
-jpy_marketplace: ''
-usd_marketplace: ''
+business_refid: ''
+quivers_api_key: ''
+drupal_api_base_url: ''
+marketplaces: null
