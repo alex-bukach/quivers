@@ -2,4 +2,6 @@ api_mode: development
 business_refid: ''
 quivers_api_key: ''
 drupal_api_base_url: ''
+consumer_key: ''
+consumer_secret: ''
 marketplaces: null

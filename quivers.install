@@ -31,10 +31,16 @@ function quivers_requirements($phase) {
  */
 function quivers_uninstall() {
 
+  // TODO: Can we wrap it in try/catch?
   // Remove fields created on plugin installation.
   FieldStorageConfig::loadByName('commerce_order_item', 'field_amount_refunded')->delete();
   FieldStorageConfig::loadByName('commerce_order_item', 'field_state')->delete();
   FieldStorageConfig::loadByName('commerce_order_item', 'field_tracking_number')->delete();
   FieldStorageConfig::loadByName('commerce_product', 'field_self_fulfilled')->delete();
-
+  FieldStorageConfig::loadByName('commerce_product', 'field_pre_order')->delete();
+  FieldStorageConfig::loadByName('commerce_product', 'field_back_order')->delete();
+  // Remove view created on plugin installation.
+  \Drupal::entityTypeManager()->getStorage('view')->load('current_user')->delete();
+  \Drupal::entityTypeManager()->getStorage('view')->load('orders_list')->delete();
+  \Drupal::entityTypeManager()->getStorage('view')->load('payments_list')->delete();
 }

@@ -9,8 +9,8 @@ dependencies:
   - commerce:commerce_store
   - commerce:commerce_tax
   - drupal:commerce_stripe
-  - drupal:jsonapi (= 8.x-2.0-rc2)
-  - drupal:simple_oauth
+  - drupal:rest
+  - drupal:oauth
   - drupal:tracking_number
 package: custom
 

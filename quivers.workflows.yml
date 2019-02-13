@@ -32,7 +32,7 @@ quivers_fulfillment_processing:
       to: completed
     cancel:
       label: 'Cancel order'
-      from: [readytofulfill, draft, processing]
+      from: [readytofulfill, processing]
       to: canceled
     close:
       label: 'Close Order'

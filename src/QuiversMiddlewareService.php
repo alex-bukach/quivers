@@ -63,6 +63,8 @@ class QuiversMiddlewareService {
       "business_refid" => $values['business_refid'],
       "api_key" => $values['quivers_api_key'],
       "marketplaces" => $marketplaces_request_data,
+      "consumer_key" => $values['consumer_key'],
+      "consumer_secret" => $values['consumer_secret'],
     ];
     // Do not need to return any data back to Form.
     $this->quiversClient->post('profile/create',
