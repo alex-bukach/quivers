@@ -1,0 +1,17 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - commerce_product
+    - oauth
+    - serialization
+id: entity.commerce_product_attribute_value
+plugin_id: 'entity:commerce_product_attribute_value'
+granularity: resource
+configuration:
+  methods:
+    - GET
+  formats:
+    - json
+  authentication:
+    - oauth

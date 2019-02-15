@@ -5,9 +5,9 @@
   "keywords": ["Drupal", "Commerce", "Quivers", "QuiversTax"],
   "require": {
     "drupal/commerce": "^2.0",
-    "jsonapi": "8.x-2.0-rc2",
     "commerce_stripe": "8.x-1.0-rc1",
-    "simple_oauth": "8.x-3.13",
+    "commerce_shipping": "8.x-2.0-beta5",
+    "oauth": "8.x-2.1",
     "tracking_number": "8.x-2.x-dev"
   }
 }

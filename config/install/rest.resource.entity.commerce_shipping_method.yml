@@ -1,0 +1,17 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - commerce_shipping
+    - oauth
+    - serialization
+id: entity.commerce_shipping_method
+plugin_id: 'entity:commerce_shipping_method'
+granularity: resource
+configuration:
+  methods:
+    - GET
+  formats:
+    - json
+  authentication:
+    - oauth

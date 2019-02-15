@@ -5,11 +5,27 @@ This module has Custom Drupal Order Workflows with Quivers-Tax Plugin.
 REQUIREMENTS
 ------------
 This module requires the following:
-* Submodules of Drupal Commerce package (https://drupal.org/project/commerce)
-  - Commerce core
-  - Commerce Order
-  - Commerce Store
-  - Commerce Tax
+* Drupal Core Module Dependencies:
+  - options
+  - rest
+  - taxonomy
+  - user
+* Drupal Contrib Module Dependencies:
+  - profile
+  - state_machine
+  - commerce
+  * Submodules of Drupal Commerce package (https://drupal.org/project/commerce)
+    - commerce_order
+    - commerce_product
+    - commerce_store
+    - commerce_tax
+    - commerce_payment
+* Drupal third-party Module Dependencies:
+  - commerce_stripe (https://www.drupal.org/project/stripe)
+  - commerce_shipping (https://www.drupal.org/project/commerce_shipping)
+  - oauth (https://www.drupal.org/project/oauth)
+  - tracking_number (https://www.drupal.org/project/tracking_number)
+
 
 INSTALLATION
 ------------

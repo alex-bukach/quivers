@@ -1,0 +1,17 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - commerce_payment
+    - oauth
+    - serialization
+id: entity.commerce_payment_gateway
+plugin_id: 'entity:commerce_payment_gateway'
+granularity: resource
+configuration:
+  methods:
+    - GET
+  formats:
+    - json
+  authentication:
+    - oauth

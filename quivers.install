@@ -43,4 +43,16 @@ function quivers_uninstall() {
   \Drupal::entityTypeManager()->getStorage('view')->load('current_user')->delete();
   \Drupal::entityTypeManager()->getStorage('view')->load('orders_list')->delete();
   \Drupal::entityTypeManager()->getStorage('view')->load('payments_list')->delete();
+  // Remove REST Resources created on plugin installation.
+  \Drupal::configFactory()->getEditable('rest.resource.entity.commerce_order')->delete();
+  \Drupal::configFactory()->getEditable('rest.resource.entity.commerce_order_item')->delete();
+  \Drupal::configFactory()->getEditable('rest.resource.entity.commerce_payment_gateway')->delete();
+  \Drupal::configFactory()->getEditable('rest.resource.entity.commerce_product')->delete();
+  \Drupal::configFactory()->getEditable('rest.resource.entity.commerce_product_attribute_value')->delete();
+  \Drupal::configFactory()->getEditable('rest.resource.entity.commerce_product_variation')->delete();
+  \Drupal::configFactory()->getEditable('rest.resource.entity.commerce_shipment')->delete();
+  \Drupal::configFactory()->getEditable('rest.resource.entity.commerce_shipping_method')->delete();
+  \Drupal::configFactory()->getEditable('rest.resource.entity.profile')->delete();
+  \Drupal::configFactory()->getEditable('rest.resource.entity.taxonomy_term')->delete();
+
 }
