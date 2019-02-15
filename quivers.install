@@ -8,25 +8,6 @@
 use Drupal\field\Entity\FieldStorageConfig;
 
 /**
- * Implements hook_requirements().
- */
-function quivers_requirements($phase) {
-  $requirements = [];
-  if ($phase == 'runtime') {
-    // Let's check if PHP OAuth 2.0 Server is installed.
-    if (!class_exists('League\OAuth2\Server\AuthorizationServer')) {
-      $requirements['league/oauth2-server'] = [
-        'description' => t('Quivers requires league/oauth2-server as dependency.'),
-        'severity' => REQUIREMENT_WARNING,
-      ];
-    }
-
-  }
-
-  return $requirements;
-}
-
-/**
  * Implements hook_uninstall().
  */
 function quivers_uninstall() {
