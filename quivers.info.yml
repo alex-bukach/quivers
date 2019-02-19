@@ -9,19 +9,17 @@ dependencies:
   - drupal:taxonomy
   - drupal:user
   - drupal:profile
-  - drupal:state_machine
-  - drupal:commerce
+  - state_machine:state_machine
+  - commerce:commerce
   - commerce:commerce_order
   - commerce:commerce_product
   - commerce:commerce_store
   - commerce:commerce_tax
   - commerce:commerce_payment
-  - drupal:commerce_stripe
-  - drupal:commerce_shipping
-  - drupal:oauth
-  - drupal:tracking_number
-package: custom
+  - commerce_stripe:commerce_stripe
+  - commerce_shipping:commerce_shipping
+  - oauth:oauth
+  - tracking_number:tracking_number
 
 php: 5.6
 core: '8.x'
-datestamp: 1549266270162

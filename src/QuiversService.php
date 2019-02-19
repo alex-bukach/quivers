@@ -95,7 +95,7 @@ class QuiversService {
         continue;
       }
       $validate_request_item_data = self::prepareValidateRequestItemData($order_item);
-      array_push($request_data['items'], $validate_request_item_data);
+      $request_data['items'][] = $validate_request_item_data;
     }
 
     // If no items are ready for Tax calculation. return [].
@@ -103,7 +103,7 @@ class QuiversService {
       return $tax_response;
     }
 
-    // Get Marketplace Id using Order currency.
+    // Get Marketplace Id using Order Store UUID.
     $marketplace_id = self::getMarketPlaceId($order);
     if ($marketplace_id === NULL) {
       return $tax_response;
