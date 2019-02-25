@@ -3,6 +3,7 @@
 namespace Drupal\quivers;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Component\Serialization\Json;
 
 /**
  * Quivers Middleware Service.
@@ -21,7 +22,7 @@ class QuiversMiddlewareService {
    *
    * @var \GuzzleHttp\Client
    */
-  protected $quiversClient;
+  protected $quiversMiddlewareClient;
 
   /**
    * Constructs a new QuiversMiddlewareService object.
@@ -33,14 +34,38 @@ class QuiversMiddlewareService {
    */
   public function __construct(ClientFactory $client_factory, ConfigFactoryInterface $config_factory) {
     $this->quiversConfig = $config_factory->get('quivers.settings');
-    $this->quiversClient = $client_factory->createMiddlewareInstance($this->quiversConfig->get());
+    $this->quiversMiddlewareClient = $client_factory->createMiddlewareInstance($this->quiversConfig->get());
   }
 
   /**
-   * Update Quivers Profile.
+   * Create Quivers Middleware Profile.
    *
    * @param array $values
    *   Quivers Settings Form array values.
+   */
+  public function profileCreate(array $values) {
+    $request_data = [
+      "client_type" => "Drupal",
+      "base_url" => $values['drupal_api_base_url'],
+      "business_refid" => $values['business_refid'],
+      "api_key" => $values['quivers_api_key'],
+      "consumer_key" => $values['consumer_key'],
+      "consumer_secret" => $values['consumer_secret'],
+    ];
+
+    $response = $this->quiversMiddlewareClient->post('profile/create',
+      ['json' => $request_data]
+    );
+    $response_data = Json::decode($response->getBody()->getContents());
+
+    return $response_data['uuid'];
+  }
+
+  /**
+   * Update Quivers Middleware Profile.
+   *
+   * @param array $values
+   *   Quivers Tax Settings Form array values.
    */
   public function profileUpdate(array $values) {
     $marketplaces = $values['marketplaces'];
@@ -57,18 +82,17 @@ class QuiversMiddlewareService {
       array_push($marketplaces_request_data, $data);
     }
 
-    $request_body = [
-      "client_type" => "Drupal",
-      "base_url" => $values['drupal_api_base_url'],
-      "business_refid" => $values['business_refid'],
-      "api_key" => $values['quivers_api_key'],
+    $request_data = [
       "marketplaces" => $marketplaces_request_data,
-      "consumer_key" => $values['consumer_key'],
-      "consumer_secret" => $values['consumer_secret'],
     ];
-    // Do not need to return any data back to Form.
-    $this->quiversClient->post('profile/create',
-      ['json' => $request_body]
+    $headers = [
+      'uuid' => $this->quiversConfig->get('middleware_profile_id'),
+    ];
+    $this->quiversMiddlewareClient->post(
+      'profile/update/marketplaces', [
+        'headers' => $headers,
+        'json' => $request_data,
+      ]
     );
   }
 

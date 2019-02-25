@@ -5,3 +5,11 @@ quivers.config_settings:
     _title: 'Quivers Settings'
   requirements:
     _permission: 'quivers edit_permissions'
+
+quivers.tax_config_settings:
+  path: '/admin/commerce/config/quivers-tax'
+  defaults:
+    _form: '\Drupal\quivers\Form\TaxSettingsForm'
+    _title: 'Quivers Tax Settings'
+  requirements:
+    _permission: 'quivers edit_permissions'

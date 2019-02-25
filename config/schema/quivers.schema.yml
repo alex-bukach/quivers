@@ -20,6 +20,26 @@ quivers.settings:
     consumer_secret:
       type: string
       label: 'OAuth Consumer Secret'
+    middleware_profile_id:
+      type: string
+      label: 'Middleware Profile Id'
+    quivers_marketplaces:
+      type: sequence
+      label: 'Quivers Marketplaces'
+      mapping:
+        quivers_marketplace_id:
+          type: string
+    quivers_claiming_groups:
+      type: sequence
+      label: 'Quivers Claiming Group Ids'
+      mapping:
+        quivers_claiming_group_id:
+          type: string
+
+quivers.tax_settings:
+  type: config_object
+  label: 'Quivers Tax Settings'
+  mapping:
     marketplaces:
       type: sequence
       label: 'Marketplaces'

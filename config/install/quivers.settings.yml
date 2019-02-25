@@ -4,4 +4,6 @@ quivers_api_key: ''
 drupal_api_base_url: ''
 consumer_key: ''
 consumer_secret: ''
-marketplaces: null
+middleware_profile_id: ''
+quivers_marketplaces: []
+quivers_claiming_groups: []

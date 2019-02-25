@@ -39,8 +39,9 @@ CONFIGURATION
   Go to Commerce > Configuration > Order Types > Edit > Workflow
   'Quivers Order Fulfilment'
 * Update IDs Provided by your project manager at Quivers 
-  in Quivers Settings.
-  Go to Administration > Commerce > Configuration > Quivers Settings
+  in Quivers Settings and Quivers Tax Settings.
+  1) Go to Administration > Commerce > Configuration > Quivers Settings
+  2) Go to Administration > Commerce > Configuration > Quivers Tax Settings
 * Add a new Tax type -> Quivers Tax.
   Administration > Commerce > Configuration > Tax Types > Add new tax type.
   Name it and Select 'Quivers Tax' in 'Plugin' options.

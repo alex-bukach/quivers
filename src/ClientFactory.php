@@ -84,4 +84,36 @@ class ClientFactory {
     return $this->clientFactory->fromOptions($options);
   }
 
+  /**
+   * Gets an API client instance for Quivers - Clouodhub.
+   *
+   * @param array $config
+   *   The config for the client.
+   *
+   * @return \GuzzleHttp\Client
+   *   The API client.
+   */
+  public function createCloudhubInstance(array $config) {
+    switch ($config['api_mode']) {
+      case 'production':
+        $base_uri = 'https://cloudhub.quivers.com/api/';
+        break;
+
+      case 'development':
+      default:
+        $base_uri = 'https://cloudhub.quiverstest.com/api/';
+        break;
+    }
+
+    $options = [
+      'base_uri' => $base_uri,
+      'headers' => [
+        'Authorization' => 'apikey ' . $config['quivers_api_key'],
+        'Content-Type' => 'application/json',
+      ],
+    ];
+
+    return $this->clientFactory->fromOptions($options);
+  }
+
 }

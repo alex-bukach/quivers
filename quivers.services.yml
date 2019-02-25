@@ -10,3 +10,7 @@ services:
   quivers.quivers_middleware_service:
     class: '\Drupal\quivers\QuiversMiddlewareService'
     arguments: ['@quivers.client_factory', '@config.factory']
+
+  quivers.quivers_cloudhub_service:
+    class: '\Drupal\quivers\QuiversCloudhubService'
+    arguments: ['@quivers.client_factory']

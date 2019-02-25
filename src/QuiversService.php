@@ -22,11 +22,18 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class QuiversService {
 
   /**
-   * The Quivers Tax configuration.
+   * The Quivers configuration.
    *
    * @var \Drupal\Core\Config\ImmutableConfig
    */
   protected $quiversConfig;
+
+  /**
+   * The Quivers Tax configuration.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
+   */
+  protected $quiversTaxConfig;
 
   /**
    * The client.
@@ -63,6 +70,7 @@ class QuiversService {
    */
   public function __construct(ClientFactory $client_factory, ConfigFactoryInterface $config_factory, EventDispatcherInterface $event_dispatcher, LoggerChannelFactoryInterface $logger_factory) {
     $this->quiversConfig = $config_factory->get('quivers.settings');
+    $this->quiversTaxConfig = $config_factory->get('quivers.tax_settings');
     $this->quiversClient = $client_factory->createInstance($this->quiversConfig->get());
     $this->eventDispatcher = $event_dispatcher;
     $this->logger = $logger_factory->get('quivers');
@@ -384,7 +392,7 @@ class QuiversService {
    */
   protected function getMarketPlaceId(OrderInterface $order) {
     $marketplace_id = NULL;
-    $marketplace_mappings = $this->quiversConfig->get('marketplaces');
+    $marketplace_mappings = $this->quiversTaxConfig->get('marketplaces');
     if (!$marketplace_mappings) {
       $this->logger->error("Quivers Marketplaces are NOT configured");
       return $marketplace_id;

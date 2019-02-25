@@ -4,3 +4,10 @@ quivers.config_settings:
   parent: 'commerce.store_configuration'
   description: 'Configure settings for Quivers.'
   weight: -20
+
+quivers.tax_config_settings:
+  title: 'Quivers Tax Settings'
+  route_name: 'quivers.tax_config_settings'
+  parent: 'commerce.store_configuration'
+  description: 'Configure settings for Quivers Tax.'
+  weight: -20
