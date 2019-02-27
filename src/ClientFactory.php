@@ -39,7 +39,7 @@ class ClientFactory {
 
       case 'development':
       default:
-        $base_uri = 'https://api.quiverstest.com/v1/';
+        $base_uri = 'https://api.quiversdemo.com/v1/';
         break;
     }
 
@@ -70,7 +70,7 @@ class ClientFactory {
 
       case 'development':
       default:
-        $base_uri = 'https://middleware.quiverstest.com';
+        $base_uri = 'https://middleware.quiversdemo.com';
         break;
     }
 
@@ -101,7 +101,7 @@ class ClientFactory {
 
       case 'development':
       default:
-        $base_uri = 'https://cloudhub.quiverstest.com/api/';
+        $base_uri = 'https://cloudhub.quiversdemo.com/api/';
         break;
     }
 
