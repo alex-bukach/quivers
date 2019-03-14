@@ -27,7 +27,6 @@ function quivers_uninstall() {
   // Remove REST Resources created on plugin installation.
   \Drupal::configFactory()->getEditable('rest.resource.entity.commerce_order')->delete();
   \Drupal::configFactory()->getEditable('rest.resource.entity.commerce_order_item')->delete();
-  \Drupal::configFactory()->getEditable('rest.resource.entity.commerce_payment_gateway')->delete();
   \Drupal::configFactory()->getEditable('rest.resource.entity.commerce_product')->delete();
   \Drupal::configFactory()->getEditable('rest.resource.entity.commerce_product_attribute_value')->delete();
   \Drupal::configFactory()->getEditable('rest.resource.entity.commerce_product_variation')->delete();
