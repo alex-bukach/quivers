@@ -3,10 +3,10 @@ status: true
 dependencies:
   module:
     - oauth
+    - profile
     - serialization
-    - taxonomy
-id: entity.taxonomy_term
-plugin_id: 'entity:taxonomy_term'
+id: quivers_entity.profile
+plugin_id: 'quivers_entity:profile'
 granularity: resource
 configuration:
   methods:

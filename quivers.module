@@ -1,0 +1,153 @@
+<?php
+
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
+
+/**
+ * Implements hook_entity_base_field_info().
+ */
+function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
+  $fields = [];
+
+  if ($entity_type->id() === 'commerce_product') {
+    $fields['quivers_self_fulfilled'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Self-fulfilled'))
+      ->setRevisionable(TRUE)
+      ->setTranslatable(FALSE)
+      ->setDisplayOptions('form', [
+        'type' => 'boolean_checkbox',
+        'settings' => [
+          'display_label' => TRUE,
+        ],
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayOptions('view', [
+        'label' => 'inline',
+        'type' => 'boolean',
+        'weight' => 0,
+      ])
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['quivers_pre_order'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Pre-order'))
+      ->setRevisionable(TRUE)
+      ->setTranslatable(FALSE)
+      ->setDisplayOptions('form', [
+        'type' => 'boolean_checkbox',
+        'settings' => [
+          'display_label' => TRUE,
+        ],
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayOptions('view', [
+        'label' => 'inline',
+        'type' => 'boolean',
+        'weight' => 0,
+      ])
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['quivers_back_order'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Back-order'))
+      ->setRevisionable(TRUE)
+      ->setTranslatable(FALSE)
+      ->setDisplayOptions('form', [
+        'type' => 'boolean_checkbox',
+        'settings' => [
+          'display_label' => TRUE,
+        ],
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayOptions('view', [
+        'label' => 'inline',
+        'type' => 'boolean',
+        'weight' => 0,
+      ])
+      ->setDisplayConfigurable('view', TRUE);
+  }
+
+  if ($entity_type->id() === 'commerce_order_item') {
+    $fields['quivers_amount_refunded'] = BaseFieldDefinition::create('float')
+      ->setLabel(t('Amount refunded'))
+      ->setRevisionable(TRUE)
+      ->setTranslatable(FALSE)
+      ->setDisplayOptions('form', [
+        'type' => 'hidden',
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayOptions('view', [
+        'label' => 'inline',
+        'type' => 'number_decimal',
+        'weight' => 0,
+      ])
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['quivers_sales_tax_refunded'] = BaseFieldDefinition::create('float')
+      ->setLabel(t('Tax amount refunded'))
+      ->setRevisionable(TRUE)
+      ->setTranslatable(FALSE)
+      ->setDisplayOptions('form', [
+        'type' => 'hidden',
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayOptions('view', [
+        'label' => 'inline',
+        'type' => 'number_decimal',
+        'weight' => 0,
+      ])
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['quivers_sales_tax'] = BaseFieldDefinition::create('float')
+      ->setLabel(t('Sales tax'))
+      ->setRevisionable(TRUE)
+      ->setTranslatable(FALSE)
+      ->setDisplayOptions('form', [
+        'type' => 'hidden',
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayOptions('view', [
+        'label' => 'inline',
+        'type' => 'number_decimal',
+        'weight' => 0,
+      ])
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['quivers_state'] = BaseFieldDefinition::create('list_string')
+      ->setLabel(t('State'))
+      ->setRevisionable(TRUE)
+      ->setTranslatable(FALSE)
+      ->setSetting('allowed_values', [
+        'cancelled' => t('Cancelled'),
+        'refunded' => t('Refunded'),
+        'shipped' => t('Shipped'),
+        'processed' => t('Processed'),
+        'processing' => t('Processing'),
+      ])
+      ->setDisplayOptions('form', [
+        'type' => 'hidden',
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayOptions('view', [
+        'label' => 'inline',
+        'type' => 'list_default',
+        'weight' => 0,
+      ])
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['quivers_tracking_number'] = BaseFieldDefinition::create('tracking_number')
+      ->setLabel(t('Tracking number'))
+      ->setRevisionable(TRUE)
+      ->setTranslatable(TRUE)
+      ->setDisplayOptions('form', [
+        'type' => 'hidden',
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayOptions('view', [
+        'label' => 'inline',
+        'type' => 'tracking_number_link',
+        'weight' => 0,
+      ])
+      ->setDisplayConfigurable('view', TRUE);
+  }
+
+  return $fields;
+}

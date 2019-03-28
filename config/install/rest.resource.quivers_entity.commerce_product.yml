@@ -2,11 +2,11 @@ langcode: en
 status: true
 dependencies:
   module:
-    - commerce_shipping
+    - commerce_product
     - oauth
     - serialization
-id: entity.commerce_shipping_method
-plugin_id: 'entity:commerce_shipping_method'
+id: quivers_entity.commerce_product
+plugin_id: 'quivers_entity:commerce_product'
 granularity: resource
 configuration:
   methods:

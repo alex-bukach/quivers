@@ -2,11 +2,11 @@ langcode: en
 status: true
 dependencies:
   module:
-    - commerce_product
     - oauth
     - serialization
-id: entity.commerce_product_variation
-plugin_id: 'entity:commerce_product_variation'
+    - taxonomy
+id: quivers_entity.taxonomy_term
+plugin_id: 'quivers_entity:taxonomy_term'
 granularity: resource
 configuration:
   methods:

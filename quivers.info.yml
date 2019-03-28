@@ -18,6 +18,7 @@ dependencies:
   - commerce:commerce_payment
   - commerce_stripe:commerce_stripe
   - commerce_shipping:commerce_shipping
+  - jsonrpc:jsonrpc
   - oauth:oauth
   - tracking_number:tracking_number
 

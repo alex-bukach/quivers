@@ -2,16 +2,15 @@ langcode: en
 status: true
 dependencies:
   module:
-    - commerce_order
+    - commerce_shipping
     - oauth
     - serialization
-id: entity.commerce_order
-plugin_id: 'entity:commerce_order'
+id: quivers_entity.commerce_shipping_method
+plugin_id: 'quivers_entity:commerce_shipping_method'
 granularity: resource
 configuration:
   methods:
     - GET
-    - PATCH
   formats:
     - json
   authentication:

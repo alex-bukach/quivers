@@ -1,0 +1,17 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - commerce_order
+    - oauth
+    - serialization
+id: quivers_entity.commerce_order_item
+plugin_id: 'quivers_entity:commerce_order_item'
+granularity: resource
+configuration:
+  methods:
+    - GET
+  formats:
+    - json
+  authentication:
+    - oauth

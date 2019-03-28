@@ -17,6 +17,10 @@ quivers_fulfillment_processing:
       label: Processing
     closed:
       label: Closed
+    shipped:
+      label: Shipped
+    refunded:
+      label: Refunded
   transitions:
     place:
       label: 'Place order'
@@ -42,3 +46,11 @@ quivers_fulfillment_processing:
       label: 'Return Order'
       from: [completed, closed]
       to: returned
+    ship:
+      label: 'Ship order'
+      from: [draft, readytofulfill, processing]
+      to: shipped
+    refund:
+      label: 'Refund order'
+      from: [readytofulfill, processing]
+      to: refunded

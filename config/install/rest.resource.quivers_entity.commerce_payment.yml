@@ -2,11 +2,11 @@ langcode: en
 status: true
 dependencies:
   module:
+    - commerce_payment
     - oauth
-    - profile
     - serialization
-id: entity.profile
-plugin_id: 'entity:profile'
+id: quivers_entity.commerce_payment
+plugin_id: 'quivers_entity:commerce_payment'
 granularity: resource
 configuration:
   methods:

@@ -5,8 +5,8 @@ dependencies:
     - commerce_product
     - oauth
     - serialization
-id: entity.commerce_product_attribute_value
-plugin_id: 'entity:commerce_product_attribute_value'
+id: quivers_entity.commerce_product_variation
+plugin_id: 'quivers_entity:commerce_product_variation'
 granularity: resource
 configuration:
   methods:
