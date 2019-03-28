@@ -1,0 +1,6 @@
+quivers_shipping_tax:
+  label: 'Quivers Shipping Tax'
+  singular_label: 'shipping tax'
+  plural_label: 'shipping taxes'
+  has_ui: true
+  weight: 5
