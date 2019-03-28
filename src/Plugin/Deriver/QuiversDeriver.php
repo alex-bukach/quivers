@@ -26,6 +26,7 @@ class QuiversDeriver extends EntityDeriver {
     return [
       'commerce_order',
       'commerce_order_item',
+      'commerce_payment',
       'commerce_product',
       'commerce_product_attribute_value',
       'commerce_product_variation',
