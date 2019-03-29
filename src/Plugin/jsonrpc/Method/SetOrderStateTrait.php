@@ -45,7 +45,7 @@ trait SetOrderStateTrait {
       $order->set('state', 'closed');
     }
     if ($set_order_state || $close_order) {
-      $constraints = $order->validate();
+      $constraints = $order->validate()->getByField('state');
       if ($constraints->count() > 0) {
         $error = Error::internalError('Invalid state update request. The requested state transition might be illegal.');
         throw JsonRpcException::fromError($error);

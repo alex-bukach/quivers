@@ -65,7 +65,7 @@ class OrderItemSplitter {
     $order->setRefreshState(OrderInterface::REFRESH_ON_SAVE);
     $order->addItem($new_order_item);
     $order->save();
-    $new_order_item = $this->entityTypeManager->getStorage('commerce_order_item')->loadUnchanged($new_order_item->id());
+    $new_order_item = $this->entityTypeManager->getStorage('commerce_order_item')->load($new_order_item->id());
     return $new_order_item;
   }
 

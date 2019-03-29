@@ -74,11 +74,6 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
         'type' => 'hidden',
       ])
       ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayOptions('view', [
-        'label' => 'inline',
-        'type' => 'number_decimal',
-        'weight' => 0,
-      ])
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['quivers_sales_tax_refunded'] = BaseFieldDefinition::create('float')
@@ -89,11 +84,6 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
         'type' => 'hidden',
       ])
       ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayOptions('view', [
-        'label' => 'inline',
-        'type' => 'number_decimal',
-        'weight' => 0,
-      ])
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['quivers_sales_tax'] = BaseFieldDefinition::create('float')
@@ -104,11 +94,6 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
         'type' => 'hidden',
       ])
       ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayOptions('view', [
-        'label' => 'inline',
-        'type' => 'number_decimal',
-        'weight' => 0,
-      ])
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['quivers_state'] = BaseFieldDefinition::create('list_string')
@@ -126,11 +111,6 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
         'type' => 'hidden',
       ])
       ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayOptions('view', [
-        'label' => 'inline',
-        'type' => 'list_default',
-        'weight' => 0,
-      ])
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['quivers_tracking_number'] = BaseFieldDefinition::create('tracking_number')
@@ -141,11 +121,6 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
         'type' => 'hidden',
       ])
       ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayOptions('view', [
-        'label' => 'inline',
-        'type' => 'tracking_number_link',
-        'weight' => 0,
-      ])
       ->setDisplayConfigurable('view', TRUE);
   }
 

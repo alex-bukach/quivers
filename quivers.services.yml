@@ -1,25 +1,25 @@
 services:
   quivers.client_factory:
-    class: '\Drupal\quivers\ClientFactory'
+    class: 'Drupal\quivers\ClientFactory'
     arguments: ['@http_client_factory']
 
   quivers.quivers_service:
-    class: '\Drupal\quivers\QuiversService'
+    class: 'Drupal\quivers\QuiversService'
     arguments: ['@quivers.client_factory', '@config.factory', '@event_dispatcher', '@logger.factory']
 
   quivers.quivers_middleware_service:
-    class: '\Drupal\quivers\QuiversMiddlewareService'
+    class: 'Drupal\quivers\QuiversMiddlewareService'
     arguments: ['@quivers.client_factory', '@config.factory']
 
   quivers.quivers_cloudhub_service:
-    class: '\Drupal\quivers\QuiversCloudhubService'
+    class: 'Drupal\quivers\QuiversCloudhubService'
     arguments: ['@quivers.client_factory']
 
   quivers.route_subscriber:
-    class: Drupal\quivers\EventSubscriber\RouteSubscriber
+    class: 'Drupal\quivers\EventSubscriber\RouteSubscriber'
     tags:
       - { name: event_subscriber }
 
   quivers.order_item_splitter:
-    class: '\Drupal\quivers\OrderItemSplitter'
+    class: 'Drupal\quivers\OrderItemSplitter'
     arguments: ['@commerce_order.order_refresh', '@entity_type.manager']
