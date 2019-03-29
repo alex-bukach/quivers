@@ -89,6 +89,12 @@ class Ship extends JsonRpcMethodBase {
     if ($tracking_number) {
       $new_order_item->set('quivers_tracking_number', ['value' => $tracking_number, 'type' => $tracking_number_type]);
     }
+
+    $tax = $params->get('item_sales_tax');
+    if ($tax) {
+      $new_order_item->set('quivers_sales_tax', $tax);
+    }
+
     $new_order_item->save();
 
     $this->setState($order, 'shipped');
