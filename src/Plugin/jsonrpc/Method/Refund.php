@@ -80,7 +80,7 @@ class Refund extends JsonRpcMethodBase {
     $new_order_item->set('quivers_amount_refunded', $amount_refunded);
 
     $tax_amount_refunded = $params->get('tax_amount_refunded') ?: $order_item->getTotalPrice()->getNumber();
-    $new_order_item->set('quivers_tax_amount_refunded', $tax_amount_refunded);
+    $new_order_item->set('quivers_sales_tax_refunded', $tax_amount_refunded);
     $new_order_item->save();
 
     $this->setState($order, 'refunded');
