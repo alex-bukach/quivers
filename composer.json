@@ -1,0 +1,18 @@
+{
+    "name": "drupal/quivers",
+    "type": "drupal-module",
+    "description": "Drupal Commerce integration for Quivers.",
+    "homepage": "https://www.drupal.org/sandbox/quiversdevelopment/3023352",
+    "license": "GPL-2.0+",
+    "require": {
+        "drupal/core": "^8.7",
+        "drupal/commerce": "^2.12",
+        "drupal/commerce_stripe": "^1.0-rc1",
+        "drupal/commerce_shipping": "^2.0-beta5",
+        "drupal/jsonrpc": "^1.0-beta7",
+        "drupal/oauth": "^2.1",
+        "drupal/tracking_number": "1.x-dev"
+    },
+    "minimum-stability": "dev"
+}
+
