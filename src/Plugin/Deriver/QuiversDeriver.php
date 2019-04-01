@@ -30,6 +30,8 @@ class QuiversDeriver extends EntityDeriver {
       'commerce_product',
       'commerce_product_attribute_value',
       'commerce_product_variation',
+      'commerce_promotion',
+      'commerce_promotion_coupon',
       'commerce_shipment',
       'commerce_shipping_method',
       'profile',

@@ -1,0 +1,17 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - commerce_promotion
+    - oauth
+    - serialization
+id: quivers_entity.commerce_promotion_coupon
+plugin_id: 'quivers_entity:commerce_promotion_coupon'
+granularity: resource
+configuration:
+  methods:
+    - GET
+  formats:
+    - json
+  authentication:
+    - oauth
