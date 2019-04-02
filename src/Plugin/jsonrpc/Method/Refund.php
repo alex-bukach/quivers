@@ -70,13 +70,17 @@ class Refund extends JsonRpcMethodBase {
     if (empty($current_state)) {
       $current_state = $order->getState()->value;
     }
-    if (!in_array($current_state, ['shipped'])) {
-      $error = Error::internalError('Only shipped items can be refunded.');
+    if (!in_array($current_state, ['shipped', 'refunded'])) {
+      $error = Error::internalError('Only shipped and partially refunded items can be refunded.');
+      throw JsonRpcException::fromError($error);
+    }
+    $amount_refunded = $params->get('amount_refunded') ?: $order_item->getTotalPrice()->getNumber();
+    if ($current_state === 'refunded' && $amount_refunded == $order_item->getTotalPrice()->getNumber()) {
+      $error = Error::internalError('Fully refunded items cannot be refunded.');
       throw JsonRpcException::fromError($error);
     }
     $new_order_item->set('quivers_state', 'refunded');
 
-    $amount_refunded = $params->get('amount_refunded') ?: $order_item->getTotalPrice()->getNumber();
     $new_order_item->set('quivers_amount_refunded', $amount_refunded);
 
     $tax_amount_refunded = $params->get('tax_amount_refunded') ?: '';
