@@ -27,7 +27,9 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
         'weight' => 0,
       ])
       ->setDisplayConfigurable('view', TRUE);
+  }
 
+  if ($entity_type->id() === 'commerce_product_variation') {
     $fields['quivers_pre_order'] = BaseFieldDefinition::create('boolean')
       ->setLabel(t('Pre-order'))
       ->setRevisionable(TRUE)
@@ -63,7 +65,7 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
         'weight' => 0,
       ])
       ->setDisplayConfigurable('view', TRUE);
-  }
+    }
 
   if ($entity_type->id() === 'commerce_order_item') {
     $fields['quivers_amount_refunded'] = BaseFieldDefinition::create('float')
