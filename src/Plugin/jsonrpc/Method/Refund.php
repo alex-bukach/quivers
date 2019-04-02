@@ -75,8 +75,8 @@ class Refund extends JsonRpcMethodBase {
       throw JsonRpcException::fromError($error);
     }
     $amount_refunded = $params->get('amount_refunded') ?: $order_item->getTotalPrice()->getNumber();
-    if ($current_state === 'refunded' && $amount_refunded == $order_item->getTotalPrice()->getNumber()) {
-      $error = Error::internalError('Fully refunded items cannot be refunded.');
+    if ($amount_refunded > $order_item->getTotalPrice()->getNumber()) {
+      $error = Error::internalError('Cannot refund more than the original amount.');
       throw JsonRpcException::fromError($error);
     }
     $new_order_item->set('quivers_state', 'refunded');
