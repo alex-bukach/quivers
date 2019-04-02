@@ -32,7 +32,7 @@ quivers_fulfillment_processing:
       to: processing
     fulfill:
       label: 'Fulfill order'
-      from: [readytofulfill, processing]
+      from: [readytofulfill, processing, shipped, closed, refunded]
       to: completed
     cancel:
       label: 'Cancel order'
@@ -40,7 +40,7 @@ quivers_fulfillment_processing:
       to: canceled
     close:
       label: 'Close Order'
-      from: [readytofulfill, processing]
+      from: [readytofulfill, processing, shipped, refunded]
       to: closed
     return:
       label: 'Return Order'
@@ -52,5 +52,5 @@ quivers_fulfillment_processing:
       to: shipped
     refund:
       label: 'Refund order'
-      from: [readytofulfill, processing]
+      from: [readytofulfill, processing, shipped, closed]
       to: refunded
