@@ -11,7 +11,7 @@
         "drupal/commerce_shipping": "^2.0-beta5",
         "drupal/jsonrpc": "^1.0-beta7",
         "drupal/oauth": "^2.1",
-        "drupal/tracking_number": "1.x-dev"
+        "drupal/tracking_number": "2.x-dev"
     },
     "minimum-stability": "dev"
 }
