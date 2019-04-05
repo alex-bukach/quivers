@@ -191,7 +191,7 @@ class TaxSettingsForm extends ConfigFormBase {
     }
     catch (\Exception $e) {
       $form_state->setError(
-        $form['tax_configuration'], 'Unable to sync Quivers Profile - ' . $e->getMessage());
+        $form['tax_configuration'], 'Unable to sync Quivers Profile. Please verify that your are connected to Quivers.');
       return;
     }
     $this->messenger->addMessage($this->t('Quivers Profile Synced successfully.'));

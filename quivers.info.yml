@@ -1,5 +1,5 @@
 name: Quivers
-description: 'Quivers Tax integration for Drupal Commerce'
+description: 'Quivers Integration for Drupal Commerce'
 type: module
 
 configure: quivers.config_settings

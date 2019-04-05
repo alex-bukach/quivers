@@ -86,6 +86,13 @@ class ConfigSettingsForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('quivers.settings');
+    $sync_error = $this->quiversMiddlewareService->verifyProfileStatus($config->get());
+    if ($sync_error) {
+      $this->messenger->addMessage($sync_error, "SYNC_STATUS");
+    }
+    else {
+     $this->messenger->deleteByType("SYNC_STATUS");
+    }
 
     // Plugin Environment Configuration.
     $form['environment_configuration'] = [
@@ -158,7 +165,7 @@ class ConfigSettingsForm extends ConfigFormBase {
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
     $values = $form_state->getValues();
-
+    $sync_flag = TRUE;
     // Create Quivers Middleware Profile.
     try {
       $middleware_profile_id = $this->quiversMiddlewareService->profileCreate($values);
@@ -167,10 +174,12 @@ class ConfigSettingsForm extends ConfigFormBase {
         ->save();
     }
     catch (\Exception $e) {
-      $form_state->setError($form['profile_configuration'], 'Unable to sync Quivers Profile - ' . $e->getMessage());
-      return;
+      $this->messenger->addError($this->t('Unable to sync to Quivers. Please check if your site is publically accessible and verify the configuration values.'));
+      $sync_flag = FALSE;
     }
-    $this->messenger->addMessage($this->t('Quivers Profile Synced successfully.'));
+    if ($sync_flag) {
+      $this->messenger->addMessage($this->t('Quivers Profile Synced successfully.'));
+    }
   }
 
   /**
@@ -179,13 +188,15 @@ class ConfigSettingsForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $values = $form_state->getValues();
     // Get Quivers Product Groups.
+    $quivers_product_groups = [
+      'quivers_marketplaces' => [],
+      'quivers_claiming_groups' => [],
+    ];
     try {
       $quivers_product_groups = $this->quiversCloudhubService->getQuiversProductGroups($values);
     }
     catch (\Exception $e) {
-      $form_state->setError(
-        $form['profile_configuration'], 'Unable to fetch Quivers Marketplaces - ' . $e->getMessage());
-      return;
+      $this->messenger->addError('Unable to fetch Quivers Marketplaces. Please verify the configuration values.');
     }
 
     $this->config('quivers.settings')

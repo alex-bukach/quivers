@@ -4,6 +4,7 @@ namespace Drupal\quivers;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Component\Serialization\Json;
+use GuzzleHttp\Exception\BadResponseException;
 
 /**
  * Quivers Middleware Service.
@@ -94,6 +95,41 @@ class QuiversMiddlewareService {
         'json' => $request_data,
       ]
     );
+  }
+
+  /**
+   * Verify Quivers Profile Status.
+   *
+   * @param array $values
+   *   Quivers Settings Database array values.
+   */
+  public function verifyProfileStatus(array $values) {
+    $request_data = [
+      "business_refid" => $values['business_refid'],
+      "api_key" => $values['quivers_api_key'],
+      "client_type" => "Drupal"
+    ];
+
+    try {
+      $response = $this->quiversMiddlewareClient->post(
+        'profile/status',
+        ['json' => $request_data]
+      );
+    }
+    catch (BadResponseException $e) {
+      return "Quivers Connection Status: Not Connected.";
+    }
+    catch (\Exception $e) {
+      return "Unable to verify your connection status. Please try again later.";
+    }
+
+    $response_data = Json::decode($response->getBody()->getContents());
+    if ($response_data["is_active"] != "true") {
+      return "Quivers Connection Status: Not Connected.";
+    }
+
+    return NULL;
+
   }
 
 }
