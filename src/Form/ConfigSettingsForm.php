@@ -86,7 +86,7 @@ class ConfigSettingsForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('quivers.settings');
-    $sync_error = $this->quiversMiddlewareService->verifyProfileStatus($config->get());
+    $sync_error = $this->quiversMiddlewareService->verifyProfileStatus($config->get(), FALSE);
     if ($sync_error) {
       $this->messenger->addMessage($sync_error, "SYNC_STATUS");
     }

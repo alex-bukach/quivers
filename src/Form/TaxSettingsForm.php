@@ -88,7 +88,15 @@ class TaxSettingsForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $quivers_tax_config = $this->config('quivers.tax_settings');
+    $quivers_config = $this->config('quivers.settings');
     $marketplaces = self::loadMarketplaces($quivers_tax_config);
+    $sync_error = $this->quiversMiddlewareService->verifyProfileStatus($quivers_config->get(), TRUE);
+    if ($sync_error) {
+      $this->messenger->addMessage($sync_error, "SYNC_STATUS");
+    }
+    else {
+     $this->messenger->deleteByType("SYNC_STATUS");
+    }
 
     if (empty($marketplaces)) {
       $url = Url::fromRoute('quivers.config_settings');
@@ -170,8 +178,9 @@ class TaxSettingsForm extends ConfigFormBase {
       return;
     }
     $marketplaces = $values['marketplaces'];
-
     $form_error = FALSE;
+    $sync_flag = TRUE;
+
     foreach ($marketplaces as $key => $marketplace) {
       // Claiming Groups are entered without Marketplace Id.
       if (
@@ -190,11 +199,13 @@ class TaxSettingsForm extends ConfigFormBase {
       $this->quiversMiddlewareService->profileUpdate($values);
     }
     catch (\Exception $e) {
-      $form_state->setError(
-        $form['tax_configuration'], 'Unable to sync Quivers Profile. Please verify that your are connected to Quivers.');
-      return;
+      $this->messenger->addError('Unable to sync Quivers Profile. Please verify that your are connected to Quivers.');
+      $sync_flag = FALSE;
     }
-    $this->messenger->addMessage($this->t('Quivers Profile Synced successfully.'));
+    if ($sync_flag) {
+      $this->messenger->addMessage($this->t('Quivers Profile Synced successfully.'));
+    }
+
   }
 
   /**

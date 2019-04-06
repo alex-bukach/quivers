@@ -102,8 +102,10 @@ class QuiversMiddlewareService {
    *
    * @param array $values
    *   Quivers Settings Database array values.
+   * @param bool $tax_settings_status
+   *   true or false.
    */
-  public function verifyProfileStatus(array $values) {
+  public function verifyProfileStatus(array $values, bool $tax_settings_status) {
     $request_data = [
       "business_refid" => $values['business_refid'],
       "api_key" => $values['quivers_api_key'],
@@ -124,7 +126,10 @@ class QuiversMiddlewareService {
     }
 
     $response_data = Json::decode($response->getBody()->getContents());
-    if ($response_data["is_active"] != "true") {
+    if ($tax_settings_status && ($response_data["tax_settings_added"] != "true")) {
+      return "Quivers Connection Status: Not Connected. Please re-save page to verify settings";
+    }
+    if (!$tax_settings_status && $response_data["is_active"] != "true") {
       return "Quivers Connection Status: Not Connected.";
     }
 
