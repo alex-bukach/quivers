@@ -14,12 +14,6 @@ quivers.settings:
     drupal_api_base_url:
       type: string
       label: 'Drupal API Base URL'
-    consumer_key:
-      type: string
-      label: 'OAuth Consumer Key'
-    consumer_secret:
-      type: string
-      label: 'OAuth Consumer Secret'
     middleware_profile_id:
       type: string
       label: 'Middleware Profile Id'
