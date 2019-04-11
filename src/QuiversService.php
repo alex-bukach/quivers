@@ -94,6 +94,7 @@ class QuiversService {
       "marketplaceId" => NULL,
       "shippingAddress" => [],
       "items" => [],
+      "customer" => [],
     ];
 
     foreach ($order->getItems() as $order_item) {
@@ -121,7 +122,10 @@ class QuiversService {
     if (empty($address_data)) {
       return $tax_response;
     }
-    $request_data['shippingAddress'] = $address_data;
+    $request_data['shippingAddress'] = $address_data['address'];
+    $customer_data = $address_data['customer'];
+    $customer_data['email'] = $order->getEmail();
+    $request_data['customer'] = $customer_data;
 
     try {
       $response = $this->quiversClient->post('customerOrders/validate',
@@ -209,13 +213,20 @@ class QuiversService {
     }
 
     $address_data = [
-      'line1' => ($address->getAddressLine1() === NULL) ? "" : $address->getAddressLine1(),
-      'line2' => ($address->getAddressLine2() === NULL) ? "" : $address->getAddressLine2(),
-      'city' => ($address->getLocality() === NULL) ? "" : $address->getLocality(),
-      'postCode' => ($address->getPostalCode() === NULL) ? "" : $address->getPostalCode(),
-      'region' => $order_region_code,
-      'country' => $address->getCountryCode(),
+      'address' => [
+        'line1' => ($address->getAddressLine1() === NULL) ? "" : $address->getAddressLine1(),
+        'line2' => ($address->getAddressLine2() === NULL) ? "" : $address->getAddressLine2(),
+        'city' => ($address->getLocality() === NULL) ? "" : $address->getLocality(),
+        'postCode' => ($address->getPostalCode() === NULL) ? "" : $address->getPostalCode(),
+        'region' => $order_region_code,
+        'country' => $address->getCountryCode(),
+      ],
+      'customer' => [
+        'firstname' => ($address->getGivenName() === NULL) ? "" : $address->getGivenName(),
+        'lastname' => ($address->getFamilyName() === NULL) ? "" : $address->getFamilyName(),
+      ]
     ];
+
     return $address_data;
   }
 
