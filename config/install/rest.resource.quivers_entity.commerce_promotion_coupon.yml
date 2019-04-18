@@ -3,7 +3,7 @@ status: true
 dependencies:
   module:
     - commerce_promotion
-    - oauth
+    - simple_oauth
     - serialization
 id: quivers_entity.commerce_promotion_coupon
 plugin_id: 'quivers_entity:commerce_promotion_coupon'
@@ -14,4 +14,4 @@ configuration:
   formats:
     - json
   authentication:
-    - oauth
+    - oauth2

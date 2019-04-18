@@ -2,7 +2,7 @@ langcode: en
 status: true
 dependencies:
   module:
-    - oauth
+    - simple_oauth
     - serialization
     - taxonomy
 id: quivers_entity.taxonomy_term
@@ -14,4 +14,4 @@ configuration:
   formats:
     - json
   authentication:
-    - oauth
+    - oauth2

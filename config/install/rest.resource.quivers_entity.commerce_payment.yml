@@ -3,7 +3,7 @@ status: true
 dependencies:
   module:
     - commerce_payment
-    - oauth
+    - simple_oauth
     - serialization
 id: quivers_entity.commerce_payment
 plugin_id: 'quivers_entity:commerce_payment'
@@ -14,4 +14,4 @@ configuration:
   formats:
     - json
   authentication:
-    - oauth
+    - oauth2

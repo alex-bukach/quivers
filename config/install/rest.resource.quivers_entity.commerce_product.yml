@@ -3,7 +3,7 @@ status: true
 dependencies:
   module:
     - commerce_product
-    - oauth
+    - simple_oauth
     - serialization
 id: quivers_entity.commerce_product
 plugin_id: 'quivers_entity:commerce_product'
@@ -14,4 +14,4 @@ configuration:
   formats:
     - json
   authentication:
-    - oauth
+    - oauth2

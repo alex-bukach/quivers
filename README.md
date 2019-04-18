@@ -23,7 +23,7 @@ This module requires the following:
 * Drupal third-party Module Dependencies:
   - commerce_stripe (https://www.drupal.org/project/stripe)
   - commerce_shipping (https://www.drupal.org/project/commerce_shipping)
-  - oauth (https://www.drupal.org/project/oauth)
+  - simple_oauth (https://www.drupal.org/project/simple_oauth)
   - tracking_number (https://www.drupal.org/project/tracking_number)
 
 

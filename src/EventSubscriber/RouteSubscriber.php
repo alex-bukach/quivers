@@ -12,7 +12,7 @@ class RouteSubscriber extends RouteSubscriberBase {
    */
   protected function alterRoutes(RouteCollection $collection) {
     if ($route = $collection->get('jsonrpc.handler')) {
-      $route->setOption('_auth', ['oauth']);
+      $route->setOption('_auth', ['oauth2']);
     }
   }
 

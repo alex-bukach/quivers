@@ -2,8 +2,9 @@ api_mode: development
 business_refid: ''
 quivers_api_key: ''
 drupal_api_base_url: ''
-consumer_key: ''
-consumer_secret: ''
+refresh_token: ''
+client_id: ''
+client_secret: ''
 middleware_profile_id: ''
 quivers_marketplaces: []
 quivers_claiming_groups: []

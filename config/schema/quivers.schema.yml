@@ -14,12 +14,15 @@ quivers.settings:
     drupal_api_base_url:
       type: string
       label: 'Drupal API Base URL'
-    consumer_key:
+    client_id:
       type: string
-      label: 'OAuth Consumer Key'
-    consumer_secret:
+      label: 'OAuth Client Id'
+    client_secret:
       type: string
-      label: 'OAuth Consumer Secret'
+      label: 'OAuth Client Secret'
+    refresh_token:
+      type: string
+      label: 'OAuth Refresh Token'
     middleware_profile_id:
       type: string
       label: 'Middleware Profile Id'

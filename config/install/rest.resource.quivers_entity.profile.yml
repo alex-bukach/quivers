@@ -2,7 +2,7 @@ langcode: en
 status: true
 dependencies:
   module:
-    - oauth
+    - simple_oauth
     - profile
     - serialization
 id: quivers_entity.profile
@@ -14,4 +14,4 @@ configuration:
   formats:
     - json
   authentication:
-    - oauth
+    - oauth2

@@ -212,7 +212,7 @@ display:
         type: data_entity
         options: {  }
       auth:
-        - oauth
+        - oauth2
     cache_metadata:
       max-age: -1
       contexts:

@@ -24,7 +24,7 @@ class QuiversResource extends EntityResource {
    */
   protected function getBaseRoute($canonical_path, $method) {
     $route = parent::getBaseRoute($canonical_path, $method);
-    $route->setOption('_auth', ['oauth'])->setRequirement('_format', 'json');
+    $route->setOption('_auth', ['oauth2'])->setRequirement('_format', 'json');
     return $route;
   }
 

@@ -16,10 +16,11 @@ dependencies:
   - commerce:commerce_store
   - commerce:commerce_tax
   - commerce:commerce_payment
+  - commerce:commerce_promotion
   - commerce_stripe:commerce_stripe
   - commerce_shipping:commerce_shipping
   - jsonrpc:jsonrpc
-  - oauth:oauth
+  - simple_oauth:simple_oauth
   - tracking_number:tracking_number
 
 php: 5.6

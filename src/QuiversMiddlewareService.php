@@ -50,8 +50,9 @@ class QuiversMiddlewareService {
       "base_url" => $values['drupal_api_base_url'],
       "business_refid" => $values['business_refid'],
       "api_key" => $values['quivers_api_key'],
-      "consumer_key" => $values['consumer_key'],
-      "consumer_secret" => $values['consumer_secret'],
+      "client_id" => $values['client_id'],
+      "client_secret" => $values['client_secret'],
+      "refresh_token" => $values['refresh_token'],
     ];
 
     $response = $this->quiversMiddlewareClient->post('profile/create',
