@@ -10,7 +10,7 @@
         "drupal/commerce_stripe": "^1.0-rc1",
         "drupal/commerce_shipping": "^2.0-beta5",
         "drupal/jsonrpc": "^1.0-beta7",
-        "drupal/simple_oauth": "^8.x-3.14",
+        "drupal/simple_oauth": "^3.14.0",
         "drupal/tracking_number": "2.x-dev"
     },
     "minimum-stability": "dev"
