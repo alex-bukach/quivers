@@ -23,8 +23,10 @@ class QuiversResource extends EntityResource {
    * {@inheritdoc}
    */
   protected function getBaseRoute($canonical_path, $method) {
+    $prefix = "quivers";
     $route = parent::getBaseRoute($canonical_path, $method);
     $route->setOption('_auth', ['oauth2'])->setRequirement('_format', 'json');
+    $route->setPath('/' . $prefix . $route->getPath());
     return $route;
   }
 
