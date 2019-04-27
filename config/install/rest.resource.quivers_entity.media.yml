@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - media
+    - serialization
+    - simple_oauth
+id: quivers_entity.media
+plugin_id: 'quivers_entity:media'
+granularity: resource
+configuration:
+  methods:
+    - GET
+  formats:
+    - json
+  authentication:
+    - oauth2
+

@@ -36,6 +36,7 @@ class QuiversDeriver extends EntityDeriver {
       'commerce_shipping_method',
       'profile',
       'taxonomy_term',
+      'media',
     ];
   }
 
