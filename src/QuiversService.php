@@ -208,8 +208,7 @@ class QuiversService {
     }
 
     if (!$order_region_code) {
-      $this->logger->notice("Unable to get Region Code from Quivers for Region Name - " . $order_region_name);
-      return $address_data;
+      $order_region_code = 'N/A';
     }
 
     $address_data = [
