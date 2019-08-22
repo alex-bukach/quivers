@@ -90,6 +90,7 @@ class QuiversService {
   public function calculateValidateTax(OrderInterface $order) {
     $tax_response = [];
     $user_profile = NULL;
+    $order_shipments = [];
     $request_data = [
       "marketplaceId" => NULL,
       "shippingAddress" => [],
@@ -97,13 +98,25 @@ class QuiversService {
       "customer" => [],
     ];
 
+    $has_shipments = $order->hasField('shipments') && !$order->get('shipments')->isEmpty();
+    if ($has_shipments) {
+      $order_shipment_amt = 0;
+      foreach ($order->get('shipments')->referencedEntities() as $shipment) {
+        $order_shipment_amt = $order_shipment_amt + $shipment->getAmount()->getNumber();
+      }
+      foreach ($order->getItems() as $order_item) {
+        $order_item_shipment_amt = $order_shipment_amt / (int) $order_item->getQuantity();
+        $order_shipments[$order_item->uuid()] = $order_item_shipment_amt;
+      }
+    }
+
     foreach ($order->getItems() as $order_item) {
       $user_profile = $this->resolveCustomerProfile($order_item);
       // If no profile resolved yet, no need for any Tax calculation.
       if (!$user_profile) {
         continue;
       }
-      $validate_request_item_data = self::prepareValidateRequestItemData($order_item);
+      $validate_request_item_data = self::prepareValidateRequestItemData($order_item, $order_shipments);
       $request_data['items'][] = $validate_request_item_data;
     }
 
@@ -154,8 +167,9 @@ class QuiversService {
    * @return array
    *   Quivers Validate API Request LineItem data.
    */
-  protected function prepareValidateRequestItemData(OrderItemInterface $order_item) {
-    $order_item_unit_price = (float) $order_item->getAdjustedUnitPrice()->getNumber();
+  protected function prepareValidateRequestItemData(OrderItemInterface $order_item, array $order_shipments) {
+    $order_item_unit_price = (float) $order_item->getUnitPrice()->getNumber();
+    $order_item_shipping_fee = isset($order_shipments[$order_item->uuid()]) ? $order_shipments[$order_item->uuid()] : 0;
     $line_item = [
       'product' => [
         'name' => $order_item->getTitle(),
@@ -167,6 +181,10 @@ class QuiversService {
       'quantity' => (int) $order_item->getQuantity(),
       'pricing' => [
         'unitPrice' => $order_item_unit_price,
+        'shippingFees' => [[
+          'name' => 'Shipping',
+          'amount' => (float) $order_item_shipping_fee,
+        ]],
       ],
     ];
 
