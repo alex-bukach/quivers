@@ -61,10 +61,10 @@ class Ship extends JsonRpcMethodBase {
     $tracking_number = $params->get('tracking_number');
     $tracking_number_type = $params->get('tracking_number_type');
     $allowed_tracking_number_types = [
-      'dhl', 'dhl_global', 'fedex', 'ups', 'usps',
+      'dhl', 'dhl_global', 'fedex', 'ups', 'usps', 'other',
     ];
     if (!empty($tracking_number) && (empty($tracking_number_type) || !in_array($tracking_number_type, $allowed_tracking_number_types))) {
-      $error = Error::invalidParams('Please provide a valid tracking number type. It can be one of dhl, dhl_global, fedex, ups and usps.');
+      $error = Error::invalidParams('Please provide a valid tracking number type. It can be one of dhl, dhl_global, fedex, ups, usps and other.');
       throw JsonRpcException::fromError($error);
     }
     /** @var \Drupal\commerce_order\Entity\OrderItemInterface $order_item */
