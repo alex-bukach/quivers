@@ -96,7 +96,7 @@ class ClientFactory {
   public function createCloudhubInstance(array $config) {
     switch ($config['api_mode']) {
       case 'production':
-        $base_uri = 'https://cloudhub.quivers.com/api/';
+        $base_uri = 'https://cloudhub-internal.quivers.com/api/';
         break;
 
       case 'development':
