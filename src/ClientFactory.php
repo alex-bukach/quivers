@@ -45,6 +45,7 @@ class ClientFactory {
 
     $options = [
       'base_uri' => $base_uri,
+      'timeout' => 10,
       'headers' => [
         'Content-Type' => 'application/json',
       ],
