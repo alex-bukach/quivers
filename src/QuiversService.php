@@ -76,6 +76,134 @@ class QuiversService {
     $this->logger = $logger_factory->get('quivers');
   }
 
+  public function splitBills($totalAmount, int $ways) {
+    $splittedAmounts = [];
+    // divide total amount into ways
+    $amountPerItem = round($totalAmount/$ways, 2);
+    // splitted amounts for each way
+    for($i=0; $i<$ways; $i++) {
+      $splittedAmounts[$i] = $amountPerItem;
+    }
+    // check difference of given total amount and total splitted amount
+    $amountDiff = round($totalAmount - array_sum($splittedAmounts), 2);
+    // if diff is 0 return splitted amounts
+    if($amountDiff==0) return $splittedAmounts;
+    $iterations = abs((int) ($amountDiff * 100));
+    $isAddition = $amountDiff > 0;
+    // add or subtract 0.01 to splitted amounts to get to the total amount
+    if($isAddition) {
+      for ($j=0; $j<$iterations; $j++) {
+        $splittedAmounts[$j] = round((float) ($splittedAmounts[$j] + ($isAddition ? 0.01 : -0.01)), 2);
+      }
+    }else {
+      $length = count($splittedAmounts) - 1;
+      for($j=$length; $j > ($length - $iterations); $j--) {
+        $splittedAmounts[$j] = round((float) ($splittedAmounts[$j] + ($isAddition ? 0.01 : -0.01)), 2);
+      }
+    }
+    return $splittedAmounts;
+  }
+
+  public function getLineItemsDiscount($order, $orderLevelDiscount=0, $discountPercentage=0)
+  {
+    $per_item_discount = [];
+    $subTotalPrice = $order->getSubtotalPrice()->getNumber();
+    $items = $order->getItems();
+
+    if($orderLevelDiscount > 0) $discountPercentage = ($orderLevelDiscount/$subTotalPrice);
+    elseif(!$discountPercentage) return [];
+    // divide discounts
+    foreach($items as $item) {
+      $itemPrice = $item->getUnitPrice()->getNumber() * $item->getQuantity();
+      $itemDiscount = $itemPrice * $discountPercentage;
+      $per_item_discount[$item->uuid()] = round($itemDiscount, 2);
+    }
+    return $per_item_discount;
+  }
+
+  public function processOrderDiscounts($order) {
+    // $rounder = \Drupal::service('commerce_price.rounder');
+    $per_item_discount = [];
+    $coupons = $order->get('coupons')->referencedEntities();
+    $promotion = count($coupons) ? $coupons[0]->getPromotion() : null;
+    $couponType = $promotion ? $promotion->getOffer()->getEntityTypeId() : null;
+    if($couponType && (string)$couponType==='commerce_order') {
+      $offer = $promotion->get('offer')->first()->getValue();
+      $offerType = $offer['target_plugin_id'];
+      $target_plugin_configuration = $offer['target_plugin_configuration'];
+      if($offerType!='order_buy_x_get_y') {
+          $orderLevelDiscount = 0;
+          $discountPercentage = 0;
+          switch ($offer['target_plugin_id']) {
+            case 'order_fixed_amount_off':
+              $amountOff = $target_plugin_configuration['amount']['number'];
+              $orderSubtotal = $order->getSubtotalPrice();
+              if($amountOff > $orderSubtotal->getNumber()) {
+                $amountOff = $orderSubtotal->getNumber();
+              }
+              $orderLevelDiscount = $amountOff;
+              break;
+            case 'order_percentage_off':
+              $percentageOff = $target_plugin_configuration['percentage'];
+              $discountPercentage = $percentageOff;
+              break;
+          }
+          if($orderLevelDiscount || $discountPercentage) {
+            // split discounts per applicable items
+            $per_item_discount = $this->getLineItemsDiscount($order, $orderLevelDiscount, $discountPercentage);
+          }
+      }
+    }
+    $allOrderItems = [];
+    foreach($order->getItems() as $order_item) {
+      $productPrice = $order_item->getPurchasedEntity()->getPrice()->getNumber();
+      $unitPrice = $order_item->getUnitPrice()->getNumber();
+      $itemDiscount = 0;
+      if($productPrice - $unitPrice > 0) {
+        $itemDiscount = $productPrice - $unitPrice;
+      }
+      if($couponType==='commerce_order_item') {
+        $offer = $promotion->getOffer();
+        $offer_conditions = new \Drupal\commerce\ConditionGroup($offer->getConditions(), $offer->getConditionOperator());
+        if($offer_conditions->evaluate($order_item)) {
+          $offer = $promotion->get('offer')->first()->getValue();
+          $target_plugin_configuration = $offer['target_plugin_configuration'];
+          if(!$target_plugin_configuration['display_inclusive']) {
+            switch ($offer['target_plugin_id']) {
+              case 'order_item_fixed_amount_off':
+                $amountOff = $target_plugin_configuration['amount']['number'];
+                // $itemDiscount = $rounder->round($amountOff);
+                if($amountOff > $order_item->getUnitPrice()->getNumber()) {
+                  $amountOff = $order_item->getUnitPrice()->getNumber();
+                }
+                $itemDiscount += $amountOff;
+                break;
+              case 'order_item_percentage_off':
+                $percentageOff = $target_plugin_configuration['percentage'];
+                $product_price = $order_item->getPurchasedEntity()->getPrice();
+                $amountOff = $product_price->multiply($percentageOff);
+                $itemDiscount += $amountOff->getNumber();
+                if($amountOff > $order_item->getUnitPrice()->getNumber()) {
+                  $amountOff = $order_item->getUnitPrice()->getNumber();
+                }
+                break;
+            }
+          }
+        }
+      }
+      if(count($per_item_discount) > 0) {
+        $lineItemDiscount = isset($per_item_discount[$order_item->uuid()]) ? $per_item_discount[$order_item->uuid()] : 0;
+      }
+      $order_item->productPrice = round($productPrice, 2);
+      $order_item->perLineItemDiscount = isset($lineItemDiscount) ? $lineItemDiscount : 0;
+      $order_item->discountAmount = round($itemDiscount, 2);
+      $allOrderItems[] = $order_item;
+    }
+    return $allOrderItems;
+  }
+
+
+
   /**
    * Get tax from Quivers Validate API.
    *
@@ -104,12 +232,72 @@ class QuiversService {
       foreach ($order->get('shipments')->referencedEntities() as $shipment) {
         $order_shipment_amt = $order_shipment_amt + $shipment->getAmount()->getNumber();
       }
+      $splitted_order_shipments = $order_shipment_amt ? $this->splitBills($order_shipment_amt, count($order->getItems())) : [];
+      $itemCounter = 0;
       foreach ($order->getItems() as $order_item) {
-        $order_item_shipment_amt = $order_shipment_amt / (int) $order_item->getQuantity();
-        $order_shipments[$order_item->uuid()] = $order_item_shipment_amt;
+        // $order_item_shipment_amt = $order_shipment_amt / (int) $order_item->getQuantity();
+        // $order_item_shipment_amt = $order_shipment_amt / (int) count($order->getItems());
+        $order_shipments[$order_item->uuid()] = isset($splitted_order_shipments[$itemCounter]) ? $splitted_order_shipments[$itemCounter] : 0;
+        $itemCounter++;
+      }
+    }
+    // process discounts on order items
+    $allOrderItems = $this->processOrderDiscounts($order);
+    // iterate on allOrderItems and prepare validate request api postdata
+    foreach($allOrderItems as $order_item) {
+      $splitted_discounts = [];
+      if($order_item->perLineItemDiscount) {
+        $splitted_discounts = $this->splitBills($order_item->perLineItemDiscount, $order_item->getQuantity());
+      }
+      // divide shipments into quantity
+      $splitted_shipments = [];
+      if(isset($order_shipments[$order_item->uuid()]) && $order_shipments[$order_item->uuid()] > 0) {
+        $splitted_shipments = $this->splitBills($order_shipments[$order_item->uuid()], $order_item->getQuantity());
+      }
+      $user_profile = $this->resolveCustomerProfile($order_item);
+      // If no profile resolved yet, no need for any Tax calculation.
+      if (!$user_profile) {
+        continue;
+      }
+      for($i=0; $i<$order_item->getQuantity(); $i++) {
+        $quantity_discount = $order_item->discountAmount;
+        if(count($splitted_discounts) > 0) $quantity_discount += $splitted_discounts[$i];
+        // $validate_request_item_data = self::prepareValidateRequestItemData($order_item, $order_shipments);
+        $quantity_shipment = isset($splitted_shipments[$i]) ? $splitted_shipments[$i] : 0;
+        $validate_request_item_data = self::prepareValidateRequestItemData($order_item, $quantity_shipment);
+        $order_coupons = $order->get('coupons')->referencedEntities();
+        if(count($order_coupons) > 0) {
+          $couponCode = $order_coupons[0]->get('code')->getValue()[0]['value'];
+          $promotion = $order_coupons[0]->getPromotion();
+          $offer = $promotion->get('offer')->first()->getValue();
+          $offerType = $offer['target_plugin_id'];
+          if($offerType==='order_buy_x_get_y') {
+            $order_buy_x_get_y = 1;
+          }else {
+            $itemUnitPrice = $order_item->productPrice;
+            $order_buy_x_get_y = 0;
+          }
+        }else {
+          $couponCode = '';
+          $itemUnitPrice = $order_item->productPrice;
+          $order_buy_x_get_y = 0;
+        }
+        if($order_buy_x_get_y==0) {
+          $validate_request_item_data['pricing']['unitPrice'] = $order_item->productPrice;
+          $discount_obj = [
+            'code' => $couponCode,
+            'name' => $couponCode,
+            'description' => 'discount',
+            'amount' => $quantity_discount ? (0 - round($quantity_discount, 2)) : 0
+          ];
+          $validate_request_item_data['pricing']['discounts'][] = $discount_obj;
+        }
+        $request_data['items'][] = $validate_request_item_data;
       }
     }
 
+    // previous code
+    /*
     foreach ($order->getItems() as $order_item) {
       $user_profile = $this->resolveCustomerProfile($order_item);
       // If no profile resolved yet, no need for any Tax calculation.
@@ -118,7 +306,7 @@ class QuiversService {
       }
       $validate_request_item_data = self::prepareValidateRequestItemData($order_item, $order_shipments);
       $request_data['items'][] = $validate_request_item_data;
-    }
+    } */
 
     // If no items are ready for Tax calculation. return [].
     if (empty($request_data["items"])) {
@@ -167,9 +355,10 @@ class QuiversService {
    * @return array
    *   Quivers Validate API Request LineItem data.
    */
-  protected function prepareValidateRequestItemData(OrderItemInterface $order_item, array $order_shipments) {
+  // protected function prepareValidateRequestItemData(OrderItemInterface $order_item, array $order_shipments) {
+  protected function prepareValidateRequestItemData(OrderItemInterface $order_item, $quantity_shipment) {
     $order_item_unit_price = (float) $order_item->getUnitPrice()->getNumber();
-    $order_item_shipping_fee = isset($order_shipments[$order_item->uuid()]) ? $order_shipments[$order_item->uuid()] : 0;
+    $order_item_shipping_fee = $quantity_shipment;
     $line_item = [
       'product' => [
         'name' => $order_item->getTitle(),
@@ -178,7 +367,8 @@ class QuiversService {
           "refId" => $order_item->uuid(),
         ],
       ],
-      'quantity' => (int) $order_item->getQuantity(),
+      // 'quantity' => (int) $order_item->getQuantity(),
+      'quantity' => 1,
       'pricing' => [
         'unitPrice' => $order_item_unit_price,
         'shippingFees' => [[
@@ -266,7 +456,12 @@ class QuiversService {
       foreach ($order_item_tax_data['pricing']['taxes'] as $validate_tax) {
         $order_item_tax = $order_item_tax + $validate_tax['amount'];
       }
-      $order_item_taxes[$order_item_tax_data['variantRefId']] = $order_item_tax;
+      if(isset($order_item_taxes[$order_item_tax_data['variantRefId']])) {
+        $order_item_taxes[$order_item_tax_data['variantRefId']] += $order_item_tax;
+      }else {
+        $order_item_taxes[$order_item_tax_data['variantRefId']] = $order_item_tax;
+      }
+      // $order_item_taxes[$order_item_tax_data['variantRefId']] = $order_item_tax;
     }
     return $order_item_taxes;
   }
