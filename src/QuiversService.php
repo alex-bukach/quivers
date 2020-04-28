@@ -55,6 +55,7 @@ class QuiversService {
    * @var \Drupal\Core\Logger\LoggerChannelInterface
    */
   protected $logger;
+  protected $logTracking;
 
   /**
    * Constructs a new QuiversTax object.
@@ -68,12 +69,13 @@ class QuiversService {
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
    *   The logger.
    */
-  public function __construct(ClientFactory $client_factory, ConfigFactoryInterface $config_factory, EventDispatcherInterface $event_dispatcher, LoggerChannelFactoryInterface $logger_factory) {
+  public function __construct(ClientFactory $client_factory, ConfigFactoryInterface $config_factory, EventDispatcherInterface $event_dispatcher, LoggerChannelFactoryInterface $logger_factory, LogTracking $log_tracking) {
     $this->quiversConfig = $config_factory->get('quivers.settings');
     $this->quiversTaxConfig = $config_factory->get('quivers.tax_settings');
     $this->quiversClient = $client_factory->createInstance($this->quiversConfig->get());
     $this->eventDispatcher = $event_dispatcher;
     $this->logger = $logger_factory->get('quivers');
+    $this->logTracking = $log_tracking;
   }
 
   public function splitBills($totalAmount, int $ways) {
@@ -216,6 +218,7 @@ class QuiversService {
    * @throws Exception
    */
   public function calculateValidateTax(OrderInterface $order) {
+    $startTime = microtime(true);
     $tax_response = [];
     $user_profile = NULL;
     $order_shipments = [];
@@ -327,13 +330,20 @@ class QuiversService {
     $customer_data = $address_data['customer'];
     $customer_data['email'] = $order->getEmail();
     $request_data['customer'] = $customer_data;
-
+    $this->logTracking->session_start($request_data, gmdate('r', $startTime)."UTC");
     try {
       $response = $this->quiversClient->post('customerOrders/validate',
         ['json' => $request_data]
       );
       $response_data = Json::decode($response->getBody()->getContents());
       $tax_response = self::formatValidateResponse($response_data);
+      $config = $this->quiversConfig->get();
+      $baseUri = $config["api_mode"]=='production'? 'https://api.quivers.com/v1/':'https://api.quiversdemo.com/v1/';
+      $request = ["base url"=>$baseUri, "Endpoint"=>'customerOrders/validate', 'Data'=>$request_data];
+      $endTime = microtime(true);
+      $order_detail = ["tax_data"=>$request_data, "Response"=>$response_data];
+      $this->logTracking->validate_api_call($request, $response_data, gmdate('r', $startTime)."UTC", gmdate('r', $endTime)."UTC");
+      $this->logTracking->session_end($order_detail, gmdate('r', $endTime)."UTC");
     }
     catch (ClientException $e) {
       $this->logger->notice($e->getMessage());
@@ -476,6 +486,7 @@ class QuiversService {
    *   Array of Order Item taxes.
    */
   public function calculateCountryTax(OrderInterface $order) {
+    $startTime = microtime(true);
     $tax_response = [];
     $address = NULL;
 
@@ -505,6 +516,8 @@ class QuiversService {
     $order_country_code = $address->getCountryCode();
     $order_region_code = $address->getAdministrativeArea();
     $order_region_name = $address->getLocality();
+    $order_data = ["Country code"=>$order_country_code, "Region code"=>$order_region_code, "Region Name"=>$order_region_name];
+    $this->logTracking->session_start(["Tax Data"=>$order_data], gmdate('r', $startTime)."UTC");
     $countries_response_data = self::getQuiversCountries();
     // If API call unable to return Countries list.
     if (empty($countries_response_data)) {
@@ -542,6 +555,8 @@ class QuiversService {
     foreach ($order->getItems() as $order_item) {
       $tax_response[$order_item->uuid()] = (float) $order_item->getAdjustedUnitPrice()->getNumber() * $country_max_tax_rate * (int) $order_item->getQuantity();
     }
+    $endTime = microtime(true);
+    $this->logTracking->session_end(["Tax Data"=>$order_data, "Response"=>$countries_response_data], gmdate('r', $endTime)."UTC");
     return $tax_response;
   }
 
@@ -552,10 +567,16 @@ class QuiversService {
    *   List of Countries with Region details.
    */
   protected function getQuiversCountries() {
+    $startTime = microtime(true);
     $countries = [];
     try {
       $response = $this->quiversClient->get('countries');
       $countries = Json::decode($response->getBody()->getContents());
+      $config = $this->quiversConfig->get();
+      $baseUri = $config["api_mode"]=='production'? 'https://api.quivers.com/v1/':'https://api.quiversdemo.com/v1/';
+      $request = ["base url"=>$baseUri, "Endpoint"=>'countries'];
+      $endTime = microtime(true);
+      $this->logTracking->countries_api_call($request, $countries, gmdate('r', $startTime)."UTC", gmdate('r', $endTime)."UTC");
     }
     catch (ClientException $e) {
       $this->logger->notice($e->getMessage());

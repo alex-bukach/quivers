@@ -117,4 +117,26 @@ class ClientFactory {
     return $this->clientFactory->fromOptions($options);
   }
 
+  public function createLoggingInstance(array $config) {
+    switch ($config['api_mode']) {
+      case 'production':
+        $base_uri = 'https://middleware.quivers.com/profile/';
+        break;
+
+      case 'development':
+      default:
+        $base_uri = 'https://middleware.quiversdemo.com/profile/';
+        break;
+    }
+
+    $options = [
+      'base_uri' => $base_uri,
+      'headers' => [
+        'Authorization' => 'apikey ' . $config['quivers_api_key'],
+        'Content-Type' => 'application/json',
+      ],
+    ];
+
+    return $this->clientFactory->fromOptions($options);
+  }
 }

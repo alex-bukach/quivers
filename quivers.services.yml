@@ -5,7 +5,7 @@ services:
 
   quivers.quivers_service:
     class: 'Drupal\quivers\QuiversService'
-    arguments: ['@quivers.client_factory', '@config.factory', '@event_dispatcher', '@logger.factory']
+    arguments: ['@quivers.client_factory', '@config.factory', '@event_dispatcher', '@logger.factory', '@quivers.log_tracking']
 
   quivers.quivers_middleware_service:
     class: 'Drupal\quivers\QuiversMiddlewareService'
@@ -23,3 +23,7 @@ services:
   quivers.order_item_splitter:
     class: 'Drupal\quivers\OrderItemSplitter'
     arguments: ['@commerce_order.order_refresh', '@entity_type.manager']
+
+  quivers.log_tracking:
+    class: 'Drupal\quivers\LogTracking'
+    arguments: ['@quivers.client_factory', '@config.factory']
