@@ -157,8 +157,13 @@ class QuiversService {
       }
     }
     $allOrderItems = [];
+    $this->container = \Drupal::getContainer();
+    $resolver = $this->container->get('commerce_pricelist.price_resolver');
+    $context = new \Drupal\commerce\Context($order->getCustomer(), $order->getStore());
     foreach($order->getItems() as $order_item) {
       $productPrice = $order_item->getPurchasedEntity()->getPrice()->getNumber();
+      $resolved_price = $resolver->resolve($order_item->getPurchasedEntity(), 1, $context);
+      $productPrice = $resolved_price ? $resolved_price->getNumber() : $productPrice;
       $unitPrice = $order_item->getUnitPrice()->getNumber();
       $itemDiscount = 0;
       if($productPrice - $unitPrice > 0) {
