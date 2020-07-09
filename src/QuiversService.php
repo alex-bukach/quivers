@@ -347,6 +347,8 @@ class QuiversService {
       $request = ["base url"=>$baseUri, "Endpoint"=>'customerOrders/validate', 'Data'=>$request_data];
       $endTime = microtime(true);
       $order_detail = ["tax_data"=>$request_data, "Response"=>$response_data];
+      $statement_descriptor = $response_data['result']['statementDescriptor'];
+      $order->setData('field_statement_descriptor', $statement_descriptor);
       $this->logTracking->validate_api_call($request, $response_data, gmdate('r', $startTime)."UTC", gmdate('r', $endTime)."UTC");
       $this->logTracking->session_end($order_detail, gmdate('r', $endTime)."UTC");
     }
