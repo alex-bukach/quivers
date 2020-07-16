@@ -327,7 +327,7 @@ class QuiversService {
       return $tax_response;
     }
     $request_data['marketplaceId'] = $marketplace_id;
-    $address_data = self::getShippingAddressData($user_profile);
+    $address_data = self::getShippingAddressData($user_profile, $order);
     if (empty($address_data)) {
       return $tax_response;
     }
@@ -407,11 +407,18 @@ class QuiversService {
    * @return array
    *   Quivers Validate API Request Address data.
    */
-  protected function getShippingAddressData(ProfileInterface $profile) {
+  protected function getShippingAddressData(ProfileInterface $profile, OrderInterface $order) {
     $address_data = [];
     try {
+      $order_profiles = $order->collectProfiles();
+      if ($order_profiles['shipping']){
+        $address = $order_profiles['shipping']->get('address')->first();
+      }
+      else{
       /** @var \Drupal\address\AddressInterface $address */
       $address = $profile->get('address')->first();
+      }
+
     }
     catch (MissingDataException $e) {
       $this->logger->error("Unable to access Address instance." . $e->getMessage());
