@@ -78,33 +78,33 @@ class QuiversService {
     $this->logTracking = $log_tracking;
   }
 
-  public function splitBills($totalAmount, int $ways) {
-    $splittedAmounts = [];
-    // divide total amount into ways
-    $amountPerItem = round($totalAmount/$ways, 2);
-    // splitted amounts for each way
-    for($i=0; $i<$ways; $i++) {
-      $splittedAmounts[$i] = $amountPerItem;
-    }
-    // check difference of given total amount and total splitted amount
-    $amountDiff = round($totalAmount - array_sum($splittedAmounts), 2);
-    // if diff is 0 return splitted amounts
-    if($amountDiff==0) return $splittedAmounts;
-    $iterations = abs((int) ($amountDiff * 100));
-    $isAddition = $amountDiff > 0;
-    // add or subtract 0.01 to splitted amounts to get to the total amount
-    if($isAddition) {
-      for ($j=0; $j<$iterations; $j++) {
-        $splittedAmounts[$j] = round((float) ($splittedAmounts[$j] + ($isAddition ? 0.01 : -0.01)), 2);
-      }
-    }else {
-      $length = count($splittedAmounts) - 1;
-      for($j=$length; $j > ($length - $iterations); $j--) {
-        $splittedAmounts[$j] = round((float) ($splittedAmounts[$j] + ($isAddition ? 0.01 : -0.01)), 2);
-      }
-    }
-    return $splittedAmounts;
-  }
+	public function splitBills($totalAmount, int $ways) {
+		$splittedAmounts = [];
+		// divide total amount into ways
+		$amountPerItem = round($totalAmount/$ways, 2);
+		// splitted amounts for each way
+		for($i=0; $i<$ways; $i++) {
+		  $splittedAmounts[$i] = $amountPerItem;
+		}
+		// check difference of given total amount and total splitted amount
+		$amountDiff = round($totalAmount - array_sum($splittedAmounts), 2);
+		// if diff is 0 return splitted amounts
+		if($amountDiff==0) return $splittedAmounts;
+		$iterations = abs((int) ($amountDiff * 100));
+		$isAddition = $amountDiff > 0;
+		// add or subtract 0.01 to splitted amounts to get to the total amount
+		if($isAddition) {
+		  for ($j=0; $j<$iterations; $j++) {
+		    $splittedAmounts[$j] = round((float) ($splittedAmounts[$j] + ($isAddition ? 0.01 : -0.01)), 2);
+		  }
+		}else {
+		  $length = count($splittedAmounts) - 1;
+		  for($j=$length; $j > ($length - $iterations); $j--) {
+		    $splittedAmounts[$j] = round((float) ($splittedAmounts[$j] + ($isAddition ? 0.01 : -0.01)), 2);
+		  }
+		}
+		return $splittedAmounts;
+	}
 
   public function getLineItemsDiscount($order, $orderLevelDiscount=0, $discountPercentage=0)
   {
@@ -253,53 +253,53 @@ class QuiversService {
     $allOrderItems = $this->processOrderDiscounts($order);
     // iterate on allOrderItems and prepare validate request api postdata
     foreach($allOrderItems as $order_item) {
-      $splitted_discounts = [];
-      if($order_item->perLineItemDiscount) {
-        $splitted_discounts = $this->splitBills($order_item->perLineItemDiscount, $order_item->getQuantity());
-      }
+    	$splitted_discounts = [];
+    	if($order_item->perLineItemDiscount) {
+    		$splitted_discounts = $this->splitBills($order_item->perLineItemDiscount, $order_item->getQuantity());
+    	}
       // divide shipments into quantity
       $splitted_shipments = [];
       if(isset($order_shipments[$order_item->uuid()]) && $order_shipments[$order_item->uuid()] > 0) {
         $splitted_shipments = $this->splitBills($order_shipments[$order_item->uuid()], $order_item->getQuantity());
       }
-      $user_profile = $this->resolveCustomerProfile($order_item);
+    	$user_profile = $this->resolveCustomerProfile($order_item);
       // If no profile resolved yet, no need for any Tax calculation.
       if (!$user_profile) {
         continue;
       }
       for($i=0; $i<$order_item->getQuantity(); $i++) {
-        $quantity_discount = $order_item->discountAmount;
-        if(count($splitted_discounts) > 0) $quantity_discount += $splitted_discounts[$i];
-        // $validate_request_item_data = self::prepareValidateRequestItemData($order_item, $order_shipments);
+      	$quantity_discount = $order_item->discountAmount;
+      	if(count($splitted_discounts) > 0) $quantity_discount += $splitted_discounts[$i];
+      	// $validate_request_item_data = self::prepareValidateRequestItemData($order_item, $order_shipments);
         $quantity_shipment = isset($splitted_shipments[$i]) ? $splitted_shipments[$i] : 0;
         $validate_request_item_data = self::prepareValidateRequestItemData($order_item, $quantity_shipment);
-        $order_coupons = $order->get('coupons')->referencedEntities();
-        if(count($order_coupons) > 0) {
-          $couponCode = $order_coupons[0]->get('code')->getValue()[0]['value'];
-          $promotion = $order_coupons[0]->getPromotion();
-          $offer = $promotion->get('offer')->first()->getValue();
-          $offerType = $offer['target_plugin_id'];
-          if($offerType==='order_buy_x_get_y') {
-            $order_buy_x_get_y = 1;
-          }else {
-            $itemUnitPrice = $order_item->productPrice;
-            $order_buy_x_get_y = 0;
-          }
-        }else {
-          $couponCode = '';
-          $itemUnitPrice = $order_item->productPrice;
-          $order_buy_x_get_y = 0;
-        }
-        if($order_buy_x_get_y==0) {
-          $validate_request_item_data['pricing']['unitPrice'] = $order_item->productPrice;
-          $discount_obj = [
-            'code' => $couponCode,
-            'name' => $couponCode,
-            'description' => 'discount',
-            'amount' => $quantity_discount ? (0 - round($quantity_discount, 2)) : 0
-          ];
-          $validate_request_item_data['pricing']['discounts'][] = $discount_obj;
-        }
+		    $order_coupons = $order->get('coupons')->referencedEntities();
+		    if(count($order_coupons) > 0) {
+		    	$couponCode = $order_coupons[0]->get('code')->getValue()[0]['value'];
+		    	$promotion = $order_coupons[0]->getPromotion();
+			    $offer = $promotion->get('offer')->first()->getValue();
+			    $offerType = $offer['target_plugin_id'];
+			    if($offerType==='order_buy_x_get_y') {
+			    	$order_buy_x_get_y = 1;
+			    }else {
+			    	$itemUnitPrice = $order_item->productPrice;
+			    	$order_buy_x_get_y = 0;
+			    }
+		    }else {
+		    	$couponCode = '';
+		    	$itemUnitPrice = $order_item->productPrice;
+		    	$order_buy_x_get_y = 0;
+		    }
+		    if($order_buy_x_get_y==0) {
+		    	$validate_request_item_data['pricing']['unitPrice'] = $order_item->productPrice;
+	        $discount_obj = [
+	          'code' => $couponCode,
+	          'name' => $couponCode,
+	          'description' => 'discount',
+	          'amount' => $quantity_discount ? (0 - round($quantity_discount, 2)) : 0
+	        ];
+	        $validate_request_item_data['pricing']['discounts'][] = $discount_obj;
+	      }
         $request_data['items'][] = $validate_request_item_data;
       }
     }
@@ -348,7 +348,9 @@ class QuiversService {
       $endTime = microtime(true);
       $order_detail = ["tax_data"=>$request_data, "Response"=>$response_data];
       $statement_descriptor = $response_data['result']['statementDescriptor'];
+      $this->logTracking->statement_descriptor($statement_descriptor);
       $order->setData('field_statement_descriptor', $statement_descriptor);
+      $this->logTracking->order_data($order->getData('field_statement_descriptor'));
       $this->logTracking->validate_api_call($request, $response_data, gmdate('r', $startTime)."UTC", gmdate('r', $endTime)."UTC");
       $this->logTracking->session_end($order_detail, gmdate('r', $endTime)."UTC");
     }
@@ -410,15 +412,16 @@ class QuiversService {
   protected function getShippingAddressData(ProfileInterface $profile, OrderInterface $order) {
     $address_data = [];
     try {
-      $order_profiles = $order->collectProfiles();
-      if ($order_profiles['shipping']){
-        $address = $order_profiles['shipping']->get('address')->first();
+        $order_profiles = $order->collectProfiles();
+        if ($order_profiles['shipping']){
+            $address = $order_profiles['shipping']->get('address')->first();
+            $this->logTracking->shipping_address($order_profiles['shipping']->get('address')->getValue());
+        }
+        else{
+        /** @var \Drupal\address\AddressInterface $address */
+        $address = $profile->get('address')->first();
+        $this->logTracking->billing_address($profile->get('address')->getValue());
       }
-      else{
-      /** @var \Drupal\address\AddressInterface $address */
-      $address = $profile->get('address')->first();
-      }
-
     }
     catch (MissingDataException $e) {
       $this->logger->error("Unable to access Address instance." . $e->getMessage());
@@ -526,13 +529,13 @@ class QuiversService {
     if ($address === NULL) {
       return $tax_response;
     }
-
     $order_country_code = $address->getCountryCode();
     $order_region_code = $address->getAdministrativeArea();
     $order_region_name = $address->getLocality();
     $order_data = ["Country code"=>$order_country_code, "Region code"=>$order_region_code, "Region Name"=>$order_region_name];
     $this->logTracking->session_start(["Tax Data"=>$order_data], gmdate('r', $startTime)."UTC");
     $countries_response_data = self::getQuiversCountries();
+
     // If API call unable to return Countries list.
     if (empty($countries_response_data)) {
       return $tax_response;

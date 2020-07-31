@@ -5,10 +5,10 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 
 class LogTracking
 {
-	 protected $logEndpoint = 'logs/';
-	 protected $loggingClient;
-	 protected $quiversConfig;
-	 protected $config;
+     protected $logEndpoint = 'logs/';
+     protected $loggingClient;
+     protected $quiversConfig;
+     protected $config;
 
      public function __construct(ClientFactory $client_factory, ConfigFactoryInterface $config_factory) {
                 $this->quiversConfig = $config_factory->get('quivers.settings');
@@ -54,6 +54,34 @@ class LogTracking
      $this->logging("PAYMENT REQUEST", $logData);
     }
 
+    public function statement_descriptor($statement_descriptor){
+        $logData = [
+            "statement_descriptor" => $statement_descriptor
+        ];
+        $this->logging("STATEMENT DESCRIPTOR", $logData);
+    }
+
+    public function order_data($order){
+        $logData = [
+            "order" => $order
+        ];
+        $this->logging("ORDER DATA", $logData);
+    }
+
+    public function shipping_address($address){
+     $logData = [
+        "address" => $address
+     ];
+    $this->logging("SHIPPING ADDRESS", $logData);
+    }
+
+    public function billing_address($address){
+     $logData = [
+        "address" => $address
+     ];
+    $this->logging("BILLING ADDRESS", $logData);
+    }
+
     public function session_end($order_detail, $time){
      $logData = [
             "order_detail" => $order_detail,
@@ -62,16 +90,16 @@ class LogTracking
      $this->logging("SESSION END", $logData);
     }
 
-   	public function logging($type, $data)
+    public function logging($type, $data)
     {
         $this->config = $this->quiversConfig->get();
         $quiversAPIKey =  $this->config['quivers_api_key'];
         $logdata = [
-    		"api_key" => $quiversAPIKey,
-    		"uuid" => uniqid(),
+            "api_key" => $quiversAPIKey,
+            "uuid" => uniqid(),
             "type" => $type,
-    		"log_data" => $data
-    	];
+            "log_data" => $data
+        ];
         $response = $this->loggingClient->post($this->logEndpoint,
             ['json' => $logdata]
         );
