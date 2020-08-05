@@ -54,6 +54,14 @@ class LogTracking
      $this->logging("PAYMENT REQUEST", $logData);
     }
 
+    public function stripe_statement_descriptor($stripe_statement_descriptor){
+        $logData = [
+            "stripe_statement_descriptor" => $stripe_statement_descriptor
+        ];
+        $this->logging("STRIPE STATEMENT DESCRIPTOR", $logData);
+
+    }
+
     public function statement_descriptor($statement_descriptor){
         $logData = [
             "statement_descriptor" => $statement_descriptor
