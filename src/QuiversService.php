@@ -362,7 +362,7 @@ class QuiversService {
       $this->logger->notice($e->getMessage());
       throw new Exception($e->getMessage());
     }
-    return $tax_response;
+    return $response_data['result']['totals'] ;
   }
 
   /**

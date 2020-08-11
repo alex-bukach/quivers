@@ -86,17 +86,28 @@ class QuiversTax extends RemoteTaxTypeBase {
     }
 
     $currency_code = $order->getTotalPrice() ? $order->getTotalPrice()->getCurrencyCode() : $order->getStore()->getDefaultCurrencyCode();
+    $tax = 0;
+    if (!empty($order_item_taxes['taxes']['additional'])) {
+      $label = 'Tax';
+      $tax = $order_item_taxes['taxes']['additional'];
+      $include =false;
+   } else {
+      $label = 'Included tax';
+      $tax = $order_item_taxes['taxes']['included'];
+      $include =true;
+   }
 
-    foreach ($order->getItems() as $item) {
-      if (isset($order_item_taxes[$item->uuid()])) {
-        $item->addAdjustment(new Adjustment([
-          'type' => 'tax',
-          'label' => $this->t('Tax'),
-          'amount' => new Price((string) $order_item_taxes[$item->uuid()], $currency_code),
-          'source_id' => $this->pluginId . '|' . $this->entityId,
-        ]));
-      }
+  foreach ($order->getItems() as $item) {
+    if (isset($tax)) {
+      $item->addAdjustment(new Adjustment([
+        'type' => 'tax',
+        'label' => $this->t($label),
+        'amount' => new Price((string) $tax, $currency_code),
+        'included' => $include,
+        'source_id' => $this->pluginId . '|' . $this->entityId,
+      ]));
     }
+  }
 
   }
 
