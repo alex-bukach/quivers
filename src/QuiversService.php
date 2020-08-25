@@ -124,7 +124,8 @@ class QuiversService {
   }
 
   public function processOrderDiscounts($order) {
-    // $rounder = \Drupal::service('commerce_price.rounder');
+
+   // $rounder = \Drupal::service('commerce_price.rounder');
     $per_item_discount = [];
     $coupons = $order->get('coupons')->referencedEntities();
     $promotion = count($coupons) ? $coupons[0]->getPromotion() : null;
@@ -160,6 +161,7 @@ class QuiversService {
     $this->container = \Drupal::getContainer();
     $resolver = $this->container->get('commerce_pricelist.price_resolver');
     $context = new \Drupal\commerce\Context($order->getCustomer(), $order->getStore());
+ 
     foreach($order->getItems() as $order_item) {
       $productPrice = $order_item->getPurchasedEntity()->getPrice()->getNumber();
       $resolved_price = $resolver->resolve($order_item->getPurchasedEntity(), 1, $context);
@@ -223,6 +225,7 @@ class QuiversService {
    * @throws Exception
    */
   public function calculateValidateTax(OrderInterface $order) {
+
     $startTime = microtime(true);
     $tax_response = [];
     $user_profile = NULL;
@@ -299,8 +302,26 @@ class QuiversService {
 	          'amount' => $quantity_discount ? (0 - round($quantity_discount, 2)) : 0
 	        ];
 	        $validate_request_item_data['pricing']['discounts'][] = $discount_obj;
-	      }
+        }
+        /* start code add taxCode in request of validate APi */
+
+        $product_variation = $order_item->getPurchasedEntity();
+        $product_id = $product_variation->product_id->getString();
+        $db = \Drupal::database();
+        $query = $db->select('commerce_product_field_data', 'taxcode');
+        $query->fields('taxcode');
+        $query->condition('product_id', $product_id, "=");
+        $result = $query->execute();
+
+        foreach($result as $key => $row){
+          if($row->taxcode!= Null) {
+            $validate_request_item_data['product']['taxCode'] = $row->taxcode;
+          }
+        }
+  
+         /* End code */
         $request_data['items'][] = $validate_request_item_data;
+   
       }
     }
 
@@ -362,7 +383,8 @@ class QuiversService {
       $this->logger->notice($e->getMessage());
       throw new Exception($e->getMessage());
     }
-    return $response_data['result']['totals'] ;
+    $data = ['tax' =>$response_data['result']['totals'] ,'tax_response'=> $tax_response];
+    return $data;
   }
 
   /**
@@ -569,14 +591,17 @@ class QuiversService {
       return $tax_response;
     }
 
+    $tax = 0;
     foreach ($order->getItems() as $order_item) {
+    $tax += $order_item->getAdjustedUnitPrice()->getNumber() * $country_max_tax_rate * (int) $order_item->getQuantity();
       $tax_response[$order_item->uuid()] = (float) $order_item->getAdjustedUnitPrice()->getNumber() * $country_max_tax_rate * (int) $order_item->getQuantity();
     }
+
     $endTime = microtime(true);
     $this->logTracking->session_end(["Tax Data"=>$order_data, "Response"=>$countries_response_data], gmdate('r', $endTime)."UTC");
-    return $tax_response;
+    $data = ['tax' =>$tax ,'tax_response'=> $tax_response];
+    return $data;
   }
-
   /**
    * Quivers Countries API with Region Details.
    *

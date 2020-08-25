@@ -2,6 +2,7 @@
 
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
 
 /**
  * Implements hook_entity_base_field_info().
@@ -27,6 +28,18 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
         'type' => 'boolean',
         'weight' => 0,
       ])
+      ->setDisplayConfigurable('view', TRUE);
+
+
+      $fields['taxcode'] = BaseFieldDefinition::create('list_string')
+      ->setLabel(t('Taxcode'))
+      ->setRevisionable(TRUE)
+      ->setTranslatable(FALSE)
+      ->setDisplayOptions('form', [
+        'type' => 'hidden',
+        'weight' => 0,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
   }
 
@@ -135,4 +148,42 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
   }
 
   return $fields;
+}
+
+
+function Quivers_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id)
+ {
+    $product = \Drupal::routeMatch()->getParameter('commerce_product');
+    $product_id = $product != null ?$product->id() : null;
+
+    if(array_key_exists('class',$form['#attributes']) && array_key_exists('1',$form['#attributes']['class']) && $form['#attributes']['class'][1] =='commerce-product-form'){
+    $formname = str_replace('-', '_', $form['#attributes']['class'][0]);
+        if($form_id == $formname) {
+            $taxcode =null;
+            $db = \Drupal::database();
+            $type ='default';
+            $query = $db->select('commerce_product_field_data', 'taxcode');
+            $query->fields('taxcode');
+            $query->condition('product_id', $product_id, "=");
+            $result = $query->execute();
+
+            foreach($result as $row){
+              $taxcode = $row->taxcode;
+              $type = $row->type;
+            }
+       
+            $form['taxcode'] = array(
+              '#type' => 'textfield',
+              '#name'=> 'taxcode',
+              '#required' => FALSE,
+              '#title' => t('Taxcode'),
+              '#weight' => 15,
+              '#default_value' =>  $taxcode
+            );
+      
+           
+        }
+    } 
+ 
+    return $form;
 }

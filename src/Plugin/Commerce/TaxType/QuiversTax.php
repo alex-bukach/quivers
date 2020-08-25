@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @CommerceTaxType(
  *   id = "quiverstax",
- *   label = "Quivers Tax",
+ *   label = "Quivers Tax"
  * )
  */
 class QuiversTax extends RemoteTaxTypeBase {
@@ -83,26 +83,28 @@ class QuiversTax extends RemoteTaxTypeBase {
       // Validate API failed to get Taxes.
       // use Countries Tax Rate.
       $order_item_taxes = $this->quiversService->calculateCountryTax($order);
+      $label ='Tax';
+      $include = false;
     }
 
+
     $currency_code = $order->getTotalPrice() ? $order->getTotalPrice()->getCurrencyCode() : $order->getStore()->getDefaultCurrencyCode();
-    $tax = 0;
-    if (!empty($order_item_taxes['taxes']['additional'])) {
-      $label = 'Tax';
-      $tax = $order_item_taxes['taxes']['additional'];
+
+   if (!empty($order_item_taxes['tax']['taxes']['additional'])) {
+      $label ='Tax'; 
       $include =false;
-   } else {
+   } 
+   if (!empty($order_item_taxes['tax']['taxes']['included'])){
       $label = 'Included tax';
-      $tax = $order_item_taxes['taxes']['included'];
       $include =true;
    }
 
   foreach ($order->getItems() as $item) {
-    if (isset($tax)) {
+    if (isset($order_item_taxes['tax_response'][$item->uuid()])) {
       $item->addAdjustment(new Adjustment([
         'type' => 'tax',
         'label' => $this->t($label),
-        'amount' => new Price((string) $tax, $currency_code),
+        'amount' => new Price((string) $order_item_taxes['tax_response'][$item->uuid()], $currency_code),
         'included' => $include,
         'source_id' => $this->pluginId . '|' . $this->entityId,
       ]));
