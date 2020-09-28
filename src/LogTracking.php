@@ -64,7 +64,7 @@ class LogTracking
 
     public function statement_descriptor($statement_descriptor){
         $logData = [
-            "statement_descriptor" => $statement_descriptor
+            "statement_descriptor_suffix" => $statement_descriptor
         ];
         $this->logging("STATEMENT DESCRIPTOR", $logData);
     }

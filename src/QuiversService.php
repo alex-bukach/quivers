@@ -369,6 +369,9 @@ class QuiversService {
       $endTime = microtime(true);
       $order_detail = ["tax_data"=>$request_data, "Response"=>$response_data];
       $statement_descriptor = $response_data['result']['statementDescriptor'];
+      if(strlen($statement_descriptor) > 10){
+        $statement_descriptor = substr($statement_descriptor, 0, 10);
+      }
       $this->logTracking->statement_descriptor($statement_descriptor);
       $order->setData('field_statement_descriptor', $statement_descriptor);
       $this->logTracking->order_data($order->getData('field_statement_descriptor'));
