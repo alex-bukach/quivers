@@ -123,8 +123,9 @@ class TaxSettingsForm extends ConfigFormBase {
       '#header' => $headers,
       '#empty' => $this->t('No Stores found'),
     ];
-
+ 
     foreach ($marketplaces as $key => $marketplace) {
+
       if (!isset($marketplace['store_id'])) {
         continue;
       }
@@ -140,28 +141,31 @@ class TaxSettingsForm extends ConfigFormBase {
         '#title_display' => 'invisible',
         '#size' => 'auto',
       ];
+
       $form['tax_configuration']['marketplaces'][$key]['quivers_marketplace_id'] = [
         '#type' => 'select',
         '#title' => $this->t('Quivers Marketplace Id'),
         '#options' => $marketplaces['quivers_marketplaces'],
         '#title_display' => 'invisible',
         '#size' => 'auto',
-        '#default_value' => $marketplace['quivers_marketplace_id'],
+        '#value' => $marketplace['quivers_marketplace_id'],
         '#placeholder' => $this->t('Quivers Marketplace Id'),
         '#empty_option' => $this->t('- Select a Marketplace -'),
         '#empty_value' => '',
       ];
+
       $form['tax_configuration']['marketplaces'][$key]['quivers_claiming_group_ids'] = [
         '#type' => 'select',
         '#title' => $this->t('Quivers Claiming Group'),
         '#options' => $marketplaces['quivers_claiming_groups'],
         '#title_display' => 'invisible',
         '#size' => 'auto',
-        '#default_value' => $marketplace['quivers_claiming_group_ids'],
-        '#placeholder' => $this->t('Comma seperated Ids'),
-        '#empty_option' => $this->t('- Select a Claiming Group -'),
-        '#empty_value' => '',
+        '#value' =>$marketplace['quivers_claiming_group_ids'],
+        '#multiple' => 'true',
+        '#attributes' => array('data-claiming' => 'True'),
+
       ];
+   
     }
 
     return parent::buildForm($form, $form_state);
@@ -174,6 +178,7 @@ class TaxSettingsForm extends ConfigFormBase {
     parent::validateForm($form, $form_state);
 
     $values = $form_state->getValues();
+
     if (!isset($values['marketplaces'])) {
       return;
     }
@@ -191,19 +196,29 @@ class TaxSettingsForm extends ConfigFormBase {
         $form_error = TRUE;
       }
     }
+  
     if ($form_error) {
       return;
     }
 
     try {
       $this->quiversMiddlewareService->profileUpdate($values);
+      \Drupal::configFactory()->getEditable('quivers.settings')
+      ->set('status', 'Active')
+      ->save();
     }
     catch (\Exception $e) {
-      $this->messenger->addError('Unable to sync Quivers Profile. Please verify that your are connected to Quivers.');
+      \Drupal::configFactory()->getEditable('quivers.settings')
+      ->set('status', 'Inactive')
+      ->save();
+      $this->messenger->addError("Failed to conect to Quivers. Please check if the settings in Quivers and Quivers tax Tabs are saved correctly. If the issue still persists,please contact 'enterprise@quivers.com' for further assistance.");
       $sync_flag = FALSE;
     }
     if ($sync_flag) {
       $this->messenger->addMessage($this->t('Quivers Profile Synced successfully.'));
+      $url =str_replace("quivers-tax","quivers",\Drupal::request()->headers->get('referer'));
+      header("LOCATION: ".$url);
+      exit;
     }
 
   }
@@ -223,6 +238,7 @@ class TaxSettingsForm extends ConfigFormBase {
 
     // Get Saved Marketplaces Mapping.
     $saved_marketplaces = $quivers_tax_config->get('marketplaces');
+
     if ($saved_marketplaces === NULL) {
       $saved_marketplaces = [];
     }
@@ -232,14 +248,17 @@ class TaxSettingsForm extends ConfigFormBase {
     if (!$quivers_config->get('quivers_marketplaces')) {
       return $marketplaces;
     }
+   
     $marketplaces['quivers_marketplaces'] = $quivers_config->get('quivers_marketplaces');
     $marketplaces['quivers_claiming_groups'] = $quivers_config->get('quivers_claiming_groups');
 
-    foreach ($saved_marketplaces as $marketplace) {
-      $saved_marketplace_store_mappings[$marketplace['store_id']] = [
-        'quivers_marketplace_id' => $marketplace['quivers_marketplace_id'],
-        'quivers_claiming_group_ids' => $marketplace['quivers_claiming_group_ids'],
-      ];
+    $saved_marketplaces =is_string($saved_marketplaces) == true ? json_decode($saved_marketplaces) : $saved_marketplaces;
+    foreach ($saved_marketplaces as $marketplace) { 
+      $marketplace =  is_object($marketplace)?json_decode(json_encode($marketplace), true):$marketplace;
+        $saved_marketplace_store_mappings[$marketplace['store_id']] = [
+          'quivers_marketplace_id' => $marketplace['quivers_marketplace_id'],
+          'quivers_claiming_group_ids' => $marketplace['quivers_claiming_group_ids'],
+        ];     
     }
 
     $stores = $this->entityManager->getStorage('commerce_store')->loadMultiple();
@@ -251,18 +270,22 @@ class TaxSettingsForm extends ConfigFormBase {
         'quivers_claiming_group_ids' => isset($saved_marketplace_store_mappings[$store->uuid()]) ? $saved_marketplace_store_mappings[$store->uuid()]['quivers_claiming_group_ids'] : "",
       ];
     }
+
     return $marketplaces;
+ 
   }
 
   /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $this->config('quivers.tax_settings')
-      ->set('marketplaces', $form_state->getValue('marketplaces'))
-      ->save();
 
+    $this->config('quivers.tax_settings')
+      ->set('marketplaces', json_encode($form_state->getValue('marketplaces')))
+      ->save();
+      
     parent::submitForm($form, $form_state);
+
   }
 
 }

@@ -1,0 +1,8 @@
+select2.quivers:
+  css:
+    theme:
+      https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/css/select2.min.css: {type: external, minified: true, weight: -2}
+      css/custom.css: { weight: -1 }
+  js:
+      https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/js/select2.min.js: { type: external, minified: true,weight: -2}
+      js/custom.js: { weight: -1 }

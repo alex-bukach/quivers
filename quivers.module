@@ -184,6 +184,9 @@ function Quivers_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_s
            
         }
     } 
- 
+   if ($form_id == "quivers_config_settings" || $form_id == "quivers_tax_config_settings" ){
+       $form['#attached']['library'][] = 'quivers/select2.quivers';
+     }
     return $form;
 }
+

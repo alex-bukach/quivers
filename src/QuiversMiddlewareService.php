@@ -56,11 +56,10 @@ class QuiversMiddlewareService {
     ];
 
     $response = $this->quiversMiddlewareClient->post('profile/create',
-      ['json' => $request_data]
+      ['json' => $request_data,'http_errors' => false]
     );
     $response_data = Json::decode($response->getBody()->getContents());
-
-    return $response_data['uuid'];
+    return $response_data;
   }
 
   /**
