@@ -196,6 +196,7 @@ class ConfigSettingsForm extends ConfigFormBase {
         ], 'validation_scripts'];
         $_SESSION['Quivers']['feild_id'] =null;
       }
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -216,14 +217,14 @@ class ConfigSettingsForm extends ConfigFormBase {
         ->save();
       $message = "Invalid Url.Please try again with valid url. If the issue still persists,please contact 'enterprise@quivers.com' for further assistance.";
       $this->printErrorvalidation($key,$message,$form);
-		} else if($api_mode != 'development' && preg_match("#((https)://(\S*?\.\S*?))(\s|\;|\)|\]|\[|\{|\}|,|”|\"|'|:|\<|$|\.\s)#", $form['profile_configuration']['drupal_api_base_url']['#value'])!=1){
+    } else if($api_mode != 'development' && preg_match("#((https)://(\S*?\.\S*?))(\s|\;|\)|\]|\[|\{|\}|,|”|\"|'|:|\<|$|\.\s)#", $form['profile_configuration']['drupal_api_base_url']['#value'])!=1){
       $key = 'url_format';
       $this->config('quivers.settings')
         ->set('status', 'Inactive')
         ->save();
       $message = "Invalid Url, if test mode is disabled, please set the base URL to https and try again. If the issue still persists,please contact 'enterprise@quivers.com' for further assistance.";
       $this->printErrorvalidation($key,$message,$form);
-		} else {
+    } else {
 
           if (isset($middleware_response['error'])) {
             $this->config('quivers.settings')
@@ -269,7 +270,7 @@ class ConfigSettingsForm extends ConfigFormBase {
       'quivers_marketplaces' => [],
       'quivers_claiming_groups' => [],
     ];
- 
+
     try {
       $quivers_product_groups = $this->quiversCloudhubService->getQuiversProductGroups($values);
     }
@@ -279,7 +280,6 @@ class ConfigSettingsForm extends ConfigFormBase {
       ->save();
        $this->messenger->addError("Failed to conect to Quivers. Please check if the settings in Quivers and Quivers tax Tabs are saved correctly. If the issue still persists,please contact 'enterprise@quivers.com' for further assistance.");
     }
-
     $this->config('quivers.settings')
       ->set('api_mode', $form_state->getValue('api_mode'))
       ->set('business_refid', $form_state->getValue('business_refid'))
