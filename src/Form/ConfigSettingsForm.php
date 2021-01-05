@@ -101,7 +101,7 @@ class ConfigSettingsForm extends ConfigFormBase {
     if($config->get('status')) {
       $status =$config->get('status');
     } else {
-      $status =null;
+      $status =$this->t('Inactive');
     }
 
     // Plugin Environment Configuration.
@@ -132,7 +132,7 @@ class ConfigSettingsForm extends ConfigFormBase {
     ];
     $form['profile_configuration']['profile_Status'] = [
       '#type' => 'label',
-      '#title' => $this->t($status),
+      '#title' => $status,
       '#id' => 'profile-status-wrapper',
       '#attributes' => array('class' => $config->get('status') =='Active'?'badge badge-success':'badge badge-danger')
     ];
@@ -180,7 +180,7 @@ class ConfigSettingsForm extends ConfigFormBase {
       '#attributes' => array('title' => 'Enter the generated Refresh Token by making a POST request to /oauth/token.')
     ];
 
-      if(is_array($_SESSION['Quivers']['feild_id'])) {
+      if(isset($_SESSION['Quivers']) && is_array($_SESSION['Quivers']['feild_id'])) {
           $form['#attached']['html_head'][] = [[
             '#tag' => 'script',
             '#value' =>'setTimeout(function(){
@@ -190,11 +190,13 @@ class ConfigSettingsForm extends ConfigFormBase {
           ], 'validation_scripts'];
           $_SESSION['Quivers']['feild_id'] =null;
       }else {
+        if(isset($_SESSION['Quivers']) && isset($_SESSION['Quivers']['feild_id']) ) {
         $form['#attached']['html_head'][] = [[
           '#tag' => 'script',
           '#value' =>'setTimeout(function(){jQuery("#'.$_SESSION['Quivers']['feild_id'].'").css("border-color", "red");}, 1000);'
         ], 'validation_scripts'];
         $_SESSION['Quivers']['feild_id'] =null;
+      }
       }
 
     return parent::buildForm($form, $form_state);
@@ -207,6 +209,15 @@ class ConfigSettingsForm extends ConfigFormBase {
     parent::validateForm($form, $form_state);
     $values = $form_state->getValues();
     $sync_flag = TRUE;
+    $this->config('quivers.settings')
+    ->set('api_mode', $form_state->getValue('api_mode'))
+    ->set('business_refid', $form_state->getValue('business_refid'))
+    ->set('quivers_api_key', $form_state->getValue('quivers_api_key'))
+    ->set('drupal_api_base_url', $form_state->getValue('drupal_api_base_url'))
+    ->set('client_id', $form_state->getValue('client_id'))
+    ->set('client_secret', $form_state->getValue('client_secret'))
+    ->set('refresh_token', $form_state->getValue('refresh_token'))
+    ->save();
     // Create Quivers Middleware Profile.
     $middleware_response = $this->quiversMiddlewareService->profileCreate($values);
     $api_mode = $values['api_mode'];
@@ -215,14 +226,14 @@ class ConfigSettingsForm extends ConfigFormBase {
       $this->config('quivers.settings')
         ->set('status', 'Inactive')
         ->save();
-      $message = "Invalid Url.Please try again with valid url. If the issue still persists,please contact 'enterprise@quivers.com' for further assistance.";
+      $message = $this->t("Invalid Url.Please try again with valid url. If the issue still persists,please contact 'enterprise@quivers.com' for further assistance.");
       $this->printErrorvalidation($key,$message,$form);
     } else if($api_mode != 'development' && preg_match("#((https)://(\S*?\.\S*?))(\s|\;|\)|\]|\[|\{|\}|,|”|\"|'|:|\<|$|\.\s)#", $form['profile_configuration']['drupal_api_base_url']['#value'])!=1){
       $key = 'url_format';
       $this->config('quivers.settings')
         ->set('status', 'Inactive')
         ->save();
-      $message = "Invalid Url, if test mode is disabled, please set the base URL to https and try again. If the issue still persists,please contact 'enterprise@quivers.com' for further assistance.";
+      $message = $this->t("Invalid Url, if test mode is disabled, please set the base URL to https and try again. If the issue still persists,please contact 'enterprise@quivers.com' for further assistance.");
       $this->printErrorvalidation($key,$message,$form);
     } else {
 
@@ -240,7 +251,7 @@ class ConfigSettingsForm extends ConfigFormBase {
               ->set('middleware_profile_id', $middleware_response['uuid'])
               ->set('status', 'Inactive')
               ->save();
-              $message = "Failed to conect to Quivers. Please check if the settings in Quivers and Quivers tax Tabs are saved correctly. If the issue still persists,please contact 'enterprise@quivers.com' for further assistance.";
+              $message = $this->t("Failed to conect to Quivers. Please check if the settings in Quivers and Quivers tax Tabs are saved correctly. If the issue still persists,please contact 'enterprise@quivers.com' for further assistance.");
               $this->printErrorvalidation(null,$message,$form);
             } else {
               $this->config('quivers.settings')
@@ -250,14 +261,13 @@ class ConfigSettingsForm extends ConfigFormBase {
               if ($sync_flag) {
                 $this->messenger->addMessage($this->t('Quivers Profile Synced successfully.'));
               }
-              $url =str_replace("quivers","quivers-tax",\Drupal::request()->headers->get('referer'));
-              header("LOCATION: ".$url);
-              exit;
-            }  
+
+            }
+
           }
       }
 
-    
+
   }
 
   /**
@@ -266,13 +276,21 @@ class ConfigSettingsForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $values = $form_state->getValues();
     // Get Quivers Product Groups.
+
     $quivers_product_groups = [
       'quivers_marketplaces' => [],
       'quivers_claiming_groups' => [],
     ];
-
     try {
+
       $quivers_product_groups = $this->quiversCloudhubService->getQuiversProductGroups($values);
+      $this->config('quivers.settings')
+      ->set('quivers_marketplaces', $quivers_product_groups['quivers_marketplaces'])
+      ->set('quivers_claiming_groups', $quivers_product_groups['quivers_claiming_groups'])
+      ->save();
+      parent::submitForm($form, $form_state);
+
+
     }
     catch (\Exception $e) {
       $this->config('quivers.settings')
@@ -280,19 +298,12 @@ class ConfigSettingsForm extends ConfigFormBase {
       ->save();
        $this->messenger->addError("Failed to conect to Quivers. Please check if the settings in Quivers and Quivers tax Tabs are saved correctly. If the issue still persists,please contact 'enterprise@quivers.com' for further assistance.");
     }
-    $this->config('quivers.settings')
-      ->set('api_mode', $form_state->getValue('api_mode'))
-      ->set('business_refid', $form_state->getValue('business_refid'))
-      ->set('quivers_api_key', $form_state->getValue('quivers_api_key'))
-      ->set('drupal_api_base_url', $form_state->getValue('drupal_api_base_url'))
-      ->set('client_id', $form_state->getValue('client_id'))
-      ->set('client_secret', $form_state->getValue('client_secret'))
-      ->set('refresh_token', $form_state->getValue('refresh_token'))
-      ->set('quivers_marketplaces', $quivers_product_groups['quivers_marketplaces'])
-      ->set('quivers_claiming_groups', $quivers_product_groups['quivers_claiming_groups'])
-      ->save();
-
-    parent::submitForm($form, $form_state);
+    $config = $this->config('quivers.settings');
+    if($config->get('status')=== "Active") {
+      $url =str_replace("quivers","quivers-tax",\Drupal::request()->headers->get('referer'));
+       header("LOCATION: ".$url);
+         exit;
+    }
   }
 
   public function printErrorvalidation ($key,$message,$form) {
@@ -301,22 +312,22 @@ class ConfigSettingsForm extends ConfigFormBase {
       case 'api':
         $id = $form['profile_configuration']['quivers_api_key']['#id'];
         $_SESSION['Quivers']['feild_id'] = $id;
-        $this->messenger->addError($this->t($message));
+        $this->messenger->addError($message);
       break;
       case 'ref_id':
         $id = $form['profile_configuration']['business_refid']['#id'];
         $_SESSION['Quivers']['feild_id'] = $id;
-        $this->messenger->addError($this->t($message));
+        $this->messenger->addError($message);
       break;
       case 'url':
         $id = $form['profile_configuration']['drupal_api_base_url']['#id'];
         $_SESSION['Quivers']['feild_id'] = $id;
-        $this->messenger->addError($this->t($message));
+        $this->messenger->addError($message);
       break;
       case 'url_format':
         $id = $form['profile_configuration']['drupal_api_base_url']['#id'];
         $_SESSION['Quivers']['feild_id'] = $id;
-       $this->messenger->addError($this->t($message));
+       $this->messenger->addError($message);
       break;
       case 'secret':
         $id = [
@@ -324,15 +335,15 @@ class ConfigSettingsForm extends ConfigFormBase {
               $form['profile_configuration']['client_secret']['#id']
         ];
         $_SESSION['Quivers']['feild_id'] = $id;
-      $this->messenger->addError($this->t($message));
+      $this->messenger->addError($message);
       break;
       case 'token':
         $id = $form['profile_configuration']['refresh_token']['#id'];
         $_SESSION['Quivers']['feild_id'] = $id;
-        $this->messenger->addError($this->t($message));
+        $this->messenger->addError($message);
       break;
       default :
-        $this->messenger->addError($this->t($message));
+        $this->messenger->addError($message);
       break;
      }
   }

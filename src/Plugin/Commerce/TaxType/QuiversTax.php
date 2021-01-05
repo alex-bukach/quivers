@@ -76,6 +76,8 @@ class QuiversTax extends RemoteTaxTypeBase {
    * {@inheritdoc}
    */
   public function apply(OrderInterface $order) {
+    $label =$this->t('Estimated Tax');
+    $include = false;
     try {
       $order_item_taxes = $this->quiversService->calculateValidateTax($order);
     }
@@ -83,7 +85,7 @@ class QuiversTax extends RemoteTaxTypeBase {
       // Validate API failed to get Taxes.
       // use Countries Tax Rate.
       $order_item_taxes = $this->quiversService->calculateCountryTax($order);
-      $label ='Tax';
+      $label =$this->t('Estimated Tax');
       $include = false;
     }
 
@@ -91,11 +93,11 @@ class QuiversTax extends RemoteTaxTypeBase {
     $currency_code = $order->getTotalPrice() ? $order->getTotalPrice()->getCurrencyCode() : $order->getStore()->getDefaultCurrencyCode();
 
    if (!empty($order_item_taxes['tax']['taxes']['additional'])) {
-      $label ='Tax'; 
+      $label =$this->t('Estimated Tax');
       $include =false;
    } 
    if (!empty($order_item_taxes['tax']['taxes']['included'])){
-      $label = 'Included tax';
+      $label = $this->t('Estimated Included Tax');
       $include =true;
    }
 
@@ -103,7 +105,7 @@ class QuiversTax extends RemoteTaxTypeBase {
     if (isset($order_item_taxes['tax_response'][$item->uuid()])) {
       $item->addAdjustment(new Adjustment([
         'type' => 'tax',
-        'label' => $this->t($label),
+        'label' => $label,
         'amount' => new Price((string) $order_item_taxes['tax_response'][$item->uuid()], $currency_code),
         'included' => $include,
         'source_id' => $this->pluginId . '|' . $this->entityId,

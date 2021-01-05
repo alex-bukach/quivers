@@ -79,7 +79,7 @@ class QuiversMiddlewareService {
       $data = [];
       $data['store_id'] = $marketplace['store_id'];
       $data['marketplace_id'] = $marketplace['quivers_marketplace_id'];
-      $data['claiming_group_ids'] = explode(",", $marketplace['quivers_claiming_group_ids']);
+      $data['claiming_group_ids'] = $marketplace['quivers_claiming_group_ids'];
       array_push($marketplaces_request_data, $data);
     }
 
