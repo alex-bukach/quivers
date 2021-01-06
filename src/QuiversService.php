@@ -681,7 +681,7 @@ class QuiversService {
    */
   protected function getMarketPlaceId(OrderInterface $order) {
     $marketplace_id = NULL;
-    $marketplace_mappings = $this->quiversTaxConfig->get('marketplaces');
+    $marketplace_mappings =(array) json_decode($this->quiversTaxConfig->get('marketplaces'));
     if (!$marketplace_mappings) {
       $this->logger->error("Quivers Marketplaces are NOT configured");
       return $marketplace_id;
@@ -689,6 +689,7 @@ class QuiversService {
     $order_store_id = $order->getStore()->uuid();
     // Get quivers marketplace id for order store uuid.
     foreach ($marketplace_mappings as $mapping) {
+      $mapping =(array)$mapping;
       if ($mapping['store_id'] === $order_store_id) {
         $marketplace_id = $mapping['quivers_marketplace_id'];
         break;
