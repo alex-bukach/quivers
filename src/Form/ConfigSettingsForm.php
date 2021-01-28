@@ -180,6 +180,15 @@ class ConfigSettingsForm extends ConfigFormBase {
       '#attributes' => array('title' => 'Enter the generated Refresh Token by making a POST request to /oauth/token.')
     ];
 
+   $form['profile_configuration']['upc_field'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('UPC Field:'),
+      '#default_value' => $config->get('upc_field'),
+      '#required' => FALSE,
+      '#maxlength' => 1024,
+      '#attributes' => array('title' => 'Since UPC is not a standard field in [e-commerce platform name], you can use UPC Field to provide the custom field that you have created on the product page to refer to when syncing UPCs. Please note that you should provide the field name from the API that represents your UPC field on the UI'),
+    ];
+
       if(isset($_SESSION['Quivers']) && is_array($_SESSION['Quivers']['feild_id'])) {
           $form['#attached']['html_head'][] = [[
             '#tag' => 'script',
@@ -217,7 +226,11 @@ class ConfigSettingsForm extends ConfigFormBase {
     ->set('client_id', $form_state->getValue('client_id'))
     ->set('client_secret', $form_state->getValue('client_secret'))
     ->set('refresh_token', $form_state->getValue('refresh_token'))
+    ->set('upc_field', $form_state->getValue('upc_field'))
     ->save();
+    $upc_field = $form_state->getValue('upc_field');
+    $db = \Drupal::database();
+    $result = $db->update('commerce_product_variation_field_data')->fields(['upc_hidden_value' => $upc_field])->execute();
     // Create Quivers Middleware Profile.
     $middleware_response = $this->quiversMiddlewareService->profileCreate($values);
     $api_mode = $values['api_mode'];
@@ -350,3 +363,4 @@ class ConfigSettingsForm extends ConfigFormBase {
 
 
 }
+

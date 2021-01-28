@@ -79,7 +79,12 @@ class QuiversMiddlewareService {
       $data = [];
       $data['store_id'] = $marketplace['store_id'];
       $data['marketplace_id'] = $marketplace['quivers_marketplace_id'];
-      $data['claiming_group_ids'] = $marketplace['quivers_claiming_group_ids'];
+      $claimingdata = [];
+      foreach($marketplace['quivers_claiming_group_ids'] as $claiminggroup) {
+        $claiminggroup =  str_replace(' ', '', $claiminggroup);
+        array_push ($claimingdata ,$claiminggroup);
+      }
+      $data['claiming_group_ids'] =$claimingdata;
       array_push($marketplaces_request_data, $data);
     }
 

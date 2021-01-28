@@ -23,6 +23,9 @@ quivers.settings:
     refresh_token:
       type: string
       label: 'OAuth Refresh Token'
+    upc_field:
+      type: string
+      label: 'UPC Field'
     middleware_profile_id:
       type: string
       label: 'Middleware Profile Id'

@@ -9,7 +9,6 @@ use Drupal\Core\Entity\Entity\EntityFormDisplay;
  */
 function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
   $fields = [];
-
   if ($entity_type->id() === 'commerce_product') {
     $fields['quivers_self_fulfilled'] = BaseFieldDefinition::create('boolean')
       ->setLabel(t('Self-fulfilled'))
@@ -80,6 +79,28 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
         'type' => 'boolean',
         'weight' => 0,
       ])
+      ->setDisplayConfigurable('view', TRUE);
+
+     $fields['upc_hidden_value'] = BaseFieldDefinition::create('list_string')
+      ->setLabel(t('UPC HIDDEN'))
+      ->setRevisionable(TRUE)
+      ->setTranslatable(FALSE)
+      ->setDisplayOptions('form', [
+        'type' => 'hidden',
+        'weight' => 0,
+      ])
+      ->setDisplayConfigurable('form', FALSE)
+      ->setDisplayConfigurable('view', FALSE);
+
+     $fields['upc'] = BaseFieldDefinition::create('list_string')
+      ->setLabel(t('UPC'))
+      ->setRevisionable(TRUE)
+      ->setTranslatable(FALSE)
+      ->setDisplayOptions('form', [
+        'type' => 'hidden',
+        'weight' => 0,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
     }
 
@@ -171,7 +192,7 @@ function Quivers_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_s
               $taxcode = $row->taxcode;
               $type = $row->type;
             }
-       
+
             $form['taxcode'] = array(
               '#type' => 'textfield',
               '#name'=> 'taxcode',
@@ -180,11 +201,50 @@ function Quivers_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_s
               '#weight' => 15,
               '#default_value' =>  $taxcode
             );
-      
-           
+
+
         }
     }
- 
+
+    $product_variation = \Drupal::routeMatch()->getParameter('commerce_product_variation');
+    $product_variant_id = $product_variation != null ?$product_variation->id() : null;
+    $upc_hidden_value = \Drupal::config('quivers.settings')->get('upc_field');
+    if(array_key_exists('class',$form['#attributes']) && array_key_exists('1',$form['#attributes']['class']) && $form['#attributes']['class'][1] =='commerce-product-variation-form'){
+        if(strpos($form_id, "commerce_product_variation") == 0) {
+            $upc = null;
+            $db = \Drupal::database();
+            $type ='default';
+            $query = $db->select('commerce_product_variation_field_data', 'upc');
+            $query->fields('upc');
+            $query->condition('variation_id', $product_variant_id, "=");
+            $result = $query->execute();
+
+            foreach($result as $row){
+              $upc = $row->upc;
+              $type = $row->type;
+            }
+
+            $form['upc'] = array(
+              '#type' => 'textfield',
+              '#name'=> 'upc',
+              '#required' => FALSE,
+              '#title' => t('UPC'),
+              '#weight' => 15,
+              '#default_value' =>  $upc,
+            );
+
+            $form['upc_hidden_value'] = array(
+              '#type' => 'hidden',
+              '#name'=> 'upc_hidden_value',
+              '#required' => FALSE,
+              '#title' => t('UPC HIDDEN VALUE'),
+              '#weight' => 15,
+              '#default_value' =>  $upc_hidden_value,
+            );
+
+        }
+    }
+
    if ($form_id == "quivers_config_settings" || $form_id == "quivers_tax_config_settings" ){
        $form['#attached']['library'][] = 'quivers/select2.quivers';
      }

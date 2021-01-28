@@ -186,8 +186,7 @@ class TaxSettingsForm extends ConfigFormBase {
     foreach ($marketplaces as $key => $marketplace) {
       // Claiming Groups are entered without Marketplace Id.
       if (
-        ($marketplace['quivers_claiming_group_ids'] && !$marketplace['quivers_marketplace_id']) ||
-        (!$marketplace['quivers_claiming_group_ids'] && $marketplace['quivers_marketplace_id'])
+        ($marketplace['quivers_claiming_group_ids'] && !$marketplace['quivers_marketplace_id'])
       ) {
         $form_state->setError($form['tax_configuration']['marketplaces'][$key], $this->t('Quivers Marketplace ID can not be empty.'));
         $form_error = TRUE;

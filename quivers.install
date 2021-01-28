@@ -15,3 +15,17 @@ function quivers_update_8203() {
   $entity_manager->onFieldStorageDefinitionCreate($definition);
 
 }
+
+function quivers_update_8204() {
+  $entity_manager = \Drupal::entityManager();
+  $definition = $entity_manager->getFieldStorageDefinitions('commerce_product_variation')['upc_hidden_value'];
+  $entity_manager->onFieldStorageDefinitionCreate($definition);
+
+}
+
+function quivers_update_8205() {
+  $entity_manager = \Drupal::entityManager();
+  $definition = $entity_manager->getFieldStorageDefinitions('commerce_product_variation')['upc'];
+  $entity_manager->onFieldStorageDefinitionCreate($definition);
+
+}
