@@ -9,7 +9,7 @@
         "drupal/commerce": "^2.16",
         "drupal/commerce_stripe": "^1.0-rc3",
         "drupal/commerce_shipping": "^2.0-beta7",
-        "drupal/jsonrpc": "^1.0-beta6",
+        "drupal/jsonrpc": "^2.0",
         "drupal/simple_oauth": "4.5.0",
         "drupal/tracking_number": "2.x-dev"
     },

@@ -230,8 +230,13 @@ class ConfigSettingsForm extends ConfigFormBase {
     ->save();
     $upc_field = $form_state->getValue('upc_field');
     $db = \Drupal::database();
+    try{
     $result = $db->update('commerce_product_variation_field_data')->fields(['upc_hidden_value' => $upc_field])->execute();
     // Create Quivers Middleware Profile.
+    }
+    catch(\Exception $e){
+        $result = '';
+    }
     $middleware_response = $this->quiversMiddlewareService->profileCreate($values);
     $api_mode = $values['api_mode'];
     if(! preg_match('/^http(s)?:\/\/[a-z0-9-]+(\.[a-z0-9-]+)*(:[0-9]+)?(\/.*)?$/i', $form['profile_configuration']['drupal_api_base_url']['#value']) ){
