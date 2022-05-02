@@ -7,7 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Config\Config;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Messenger\MessengerInterface;
-use Drupal\Core\Entity\EntityManager;
+use Drupal\Core\Entity\EntityTypeManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\quivers\QuiversMiddlewareService;
 use Drupal\Core\Url;
@@ -47,10 +47,10 @@ class TaxSettingsForm extends ConfigFormBase {
    *   The messenger.
    * @param \Drupal\quivers\Form\QuiversMiddlewareService $quivers_middleware_service
    *   The Quivers Middleware Service.
-   * @param \Drupal\Core\Entity\EntityManager $entity_manager
+   * @param \Drupal\Core\Entity\EntityTypeManager $entity_manager
    *   Entity Manager.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, MessengerInterface $messenger, QuiversMiddlewareService $quivers_middleware_service, EntityManager $entity_manager) {
+  public function __construct(ConfigFactoryInterface $config_factory, MessengerInterface $messenger, QuiversMiddlewareService $quivers_middleware_service, EntityTypeManager $entity_manager) {
     parent::__construct($config_factory);
     $this->messenger = $messenger;
     $this->quiversMiddlewareService = $quivers_middleware_service;
@@ -65,7 +65,7 @@ class TaxSettingsForm extends ConfigFormBase {
       $container->get('config.factory'),
       $container->get('messenger'),
       $container->get('quivers.quivers_middleware_service'),
-      $container->get('entity.manager')
+      $container->get('entity_type.manager')
     );
   }
 

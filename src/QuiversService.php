@@ -163,6 +163,9 @@ class QuiversService {
     $context = new \Drupal\commerce\Context($order->getCustomer(), $order->getStore());
  
     foreach($order->getItems() as $order_item) {
+      if ($order_item->getPurchasedEntity() === NULL) {
+          continue;
+      } 
       $productPrice = $order_item->getPurchasedEntity()->getPrice()->getNumber();
       $resolved_price = $resolver->resolve($order_item->getPurchasedEntity(), 1, $context);
       $productPrice = $resolved_price ? $resolved_price->getNumber() : $productPrice;
@@ -241,7 +244,10 @@ class QuiversService {
     if ($has_shipments) {
       $order_shipment_amt = 0;
       foreach ($order->get('shipments')->referencedEntities() as $shipment) {
-        $order_shipment_amt = $order_shipment_amt + $shipment->getAmount()->getNumber();
+        if (!empty($shipment->getAmount())) {
+          $order_shipment_amt = $order_shipment_amt + $shipment->getAmount()
+              ->getNumber();
+        }
       }
       $splitted_order_shipments = $order_shipment_amt ? $this->splitBills($order_shipment_amt, count($order->getItems())) : [];
       $itemCounter = 0;
@@ -452,6 +458,12 @@ class QuiversService {
       $this->logger->error("Unable to access Address instance." . $e->getMessage());
       return $address_data;
     }
+
+    if ($address === NULL) {
+        $this->logger->error("Address instance was null.");
+        return $address_data;
+    }
+
     $order_country_code = $address->getCountryCode();
     $order_region_code = $address->getAdministrativeArea();
     $order_region_name = $address->getLocality();

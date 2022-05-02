@@ -35,7 +35,7 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setRevisionable(TRUE)
       ->setTranslatable(FALSE)
       ->setDisplayOptions('form', [
-        'type' => 'hidden',
+        'region' => 'hidden',
         'weight' => 0,
       ])
       ->setDisplayConfigurable('form', TRUE)
@@ -86,7 +86,7 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setRevisionable(TRUE)
       ->setTranslatable(FALSE)
       ->setDisplayOptions('form', [
-        'type' => 'hidden',
+        'region' => 'hidden',
         'weight' => 0,
       ])
       ->setDisplayConfigurable('form', FALSE)
@@ -97,7 +97,7 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setRevisionable(TRUE)
       ->setTranslatable(FALSE)
       ->setDisplayOptions('form', [
-        'type' => 'hidden',
+        'region' => 'hidden',
         'weight' => 0,
       ])
       ->setDisplayConfigurable('form', TRUE)
@@ -110,7 +110,7 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setRevisionable(TRUE)
       ->setTranslatable(FALSE)
       ->setDisplayOptions('form', [
-        'type' => 'hidden',
+        'region' => 'hidden',
         'weight' => 0,
       ])
       ->setDisplayConfigurable('form', TRUE)
@@ -121,7 +121,7 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setRevisionable(TRUE)
       ->setTranslatable(FALSE)
       ->setDisplayOptions('form', [
-        'type' => 'hidden',
+        'region' => 'hidden',
         'weight' => 0,
       ])
       ->setDisplayConfigurable('form', TRUE)
@@ -132,7 +132,7 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setRevisionable(TRUE)
       ->setTranslatable(FALSE)
       ->setDisplayOptions('form', [
-        'type' => 'hidden',
+        'region' => 'hidden',
         'weight' => 0,
       ])
       ->setDisplayConfigurable('form', TRUE)
@@ -150,7 +150,7 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
         'processing' => t('Processing'),
       ])
       ->setDisplayOptions('form', [
-        'type' => 'hidden',
+        'region' => 'hidden',
         'weight' => 0,
       ])
       ->setDisplayConfigurable('form', TRUE)
@@ -161,7 +161,7 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setRevisionable(TRUE)
       ->setTranslatable(TRUE)
       ->setDisplayOptions('form', [
-        'type' => 'hidden',
+        'region' => 'hidden',
         'weight' => 0,
       ])
       ->setDisplayConfigurable('form', TRUE)

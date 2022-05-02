@@ -5,7 +5,6 @@
     "homepage": "https://www.drupal.org/sandbox/quiversdevelopment/3023352",
     "license": "GPL-2.0+",
     "require": {
-        "drupal/core": "^8.8",
         "drupal/commerce": "^2.16",
         "drupal/commerce_stripe": "^1.0-rc3",
         "drupal/commerce_shipping": "^2.0-beta7",
