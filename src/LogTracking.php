@@ -5,10 +5,10 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 
 class LogTracking
 {
-     protected $logEndpoint = 'logs/';
-     protected $loggingClient;
-     protected $quiversConfig;
-     protected $config;
+	 protected $logEndpoint = 'logs/';
+	 protected $loggingClient;
+	 protected $quiversConfig;
+	 protected $config;
 
      public function __construct(ClientFactory $client_factory, ConfigFactoryInterface $config_factory) {
                 $this->quiversConfig = $config_factory->get('quivers.settings');
@@ -98,16 +98,29 @@ class LogTracking
      $this->logging("SESSION END", $logData);
     }
 
-    public function logging($type, $data)
+    public function debug_mode_on($debug_mode, $function_name, $file_name, $email, $request, $response ,$data){
+        $logData = [
+               "debug_mode" => $debug_mode,
+               "function_name" => $function_name,
+               "file_name" => $file_name,
+               "email" => $email,
+               "request" => $request,
+               "response" => $response,
+               "data" => $data
+           ];
+        $this->logging("DEBUG MODE - ".$function_name, $logData);
+    }
+
+   	public function logging($type, $data)
     {
         $this->config = $this->quiversConfig->get();
         $quiversAPIKey =  $this->config['quivers_api_key'];
         $logdata = [
-            "api_key" => $quiversAPIKey,
-            "uuid" => uniqid(),
+    		"api_key" => $quiversAPIKey,
+    		"uuid" => uniqid(),
             "type" => $type,
-            "log_data" => $data
-        ];
+    		"log_data" => $data
+    	];
         $response = $this->loggingClient->post($this->logEndpoint,
             ['json' => $logdata]
         );

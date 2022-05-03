@@ -161,7 +161,7 @@ class QuiversService {
     $this->container = \Drupal::getContainer();
     $resolver = $this->container->get('commerce_pricelist.price_resolver');
     $context = new \Drupal\commerce\Context($order->getCustomer(), $order->getStore());
- 
+
     foreach($order->getItems() as $order_item) {
       if ($order_item->getPurchasedEntity() === NULL) {
           continue;
@@ -229,6 +229,8 @@ class QuiversService {
    */
   public function calculateValidateTax(OrderInterface $order) {
 
+    $config = $this->quiversConfig->get();
+    $debug_mode = $config["debug_mode"];
     $startTime = microtime(true);
     $tax_response = [];
     $user_profile = NULL;
@@ -239,14 +241,17 @@ class QuiversService {
       "items" => [],
       "customer" => [],
     ];
-
+    $Email = $order->getEmail();
     $has_shipments = $order->hasField('shipments') && !$order->get('shipments')->isEmpty();
+    if ($debug_mode){
+        $this->logTracking->debug_mode_on($debug_mode,'calculateValidateTax','Has Shipments',$Email,null,null,$has_shipments);
+      }
     if ($has_shipments) {
       $order_shipment_amt = 0;
       foreach ($order->get('shipments')->referencedEntities() as $shipment) {
-        if (!empty($shipment->getAmount())) {
-          $order_shipment_amt = $order_shipment_amt + $shipment->getAmount()
-              ->getNumber();
+        $amt = $shipment->getAmount();
+        if ($amt !== NULL){
+           $order_shipment_amt = $order_shipment_amt + $amt->getNumber();
         }
       }
       $splitted_order_shipments = $order_shipment_amt ? $this->splitBills($order_shipment_amt, count($order->getItems())) : [];
@@ -310,54 +315,72 @@ class QuiversService {
 	        $validate_request_item_data['pricing']['discounts'][] = $discount_obj;
         }
         /* start code add taxCode in request of validate APi */
-
         $product_variation = $order_item->getPurchasedEntity();
+        if ($debug_mode){
+            $this->logTracking->debug_mode_on($debug_mode,'calculateValidateTax','PRODUCT VARIATION DATA',$Email,null,null,$product_variation);
+            }
         $product_id = $product_variation->product_id->getString();
-        $db = \Drupal::database();
-        $query = $db->select('commerce_product_field_data', 'taxcode');
-        $query->fields('taxcode');
-        $query->condition('product_id', $product_id, "=");
-        $result = $query->execute();
-
-        foreach($result as $key => $row){
-          if($row->taxcode!= Null) {
-            $validate_request_item_data['product']['taxCode'] = $row->taxcode;
+        $product = \Drupal\commerce_product\Entity\Product::load((int)$product_id);
+        if ($debug_mode){
+            $this->logTracking->debug_mode_on($debug_mode,'calculateValidateTax','PRODUCT DATA',$Email,null,null,$product);
+            }
+        try{
+          if ($product !== NULL){
+           $taxcodes = $product->get("taxcode")->getValue();
+           foreach($taxcodes as $key=>$taxcode){
+                if( $taxcodes === NULL){
+                   continue;
+                   }
+           $taxcode_value= $taxcode['value'];
+           }
           }
-        }
-  
-         /* End code */
-        $request_data['items'][] = $validate_request_item_data;
-   
+          }
+        catch(Exception $e) {
+           return "No product found.If the issue still persists,please contact 'enterprise@quivers.com' for further assistance.";
+         }
+         $validate_request_item_data['product']['taxCode'] = $taxcode_value;
+         $request_data['items'][] = $validate_request_item_data;
       }
     }
 
     // previous code
-    /*
-    foreach ($order->getItems() as $order_item) {
-      $user_profile = $this->resolveCustomerProfile($order_item);
-      // If no profile resolved yet, no need for any Tax calculation.
-      if (!$user_profile) {
-        continue;
-      }
-      $validate_request_item_data = self::prepareValidateRequestItemData($order_item, $order_shipments);
-      $request_data['items'][] = $validate_request_item_data;
-    } */
+
+    // foreach ($order->getItems() as $order_item) {
+    //   $user_profile = $this->resolveCustomerProfile($order_item);
+    //   // If no profile resolved yet, no need for any Tax calculation.
+    //   if (!$user_profile) {
+    //     continue;
+    //   }
+    //   $validate_request_item_data = self::prepareValidateRequestItemData($order_item, $order_shipments);
+
+    //   $request_data['items'][] = $validate_request_item_data;
+    // }
 
     // If no items are ready for Tax calculation. return [].
+    if ($debug_mode){
+        $this->logTracking->debug_mode_on($debug_mode,'calculateValidateTax','Request Data Item',$Email,null,null,$request_data);
+        }
     if (empty($request_data["items"])) {
       return $tax_response;
     }
 
     // Get Marketplace Id using Order Store UUID.
     $marketplace_id = self::getMarketPlaceId($order);
+    if ($debug_mode){
+        $this->logTracking->debug_mode_on($debug_mode,'calculateValidateTax','Marketplace Id',$Email,null,null,$marketplace_id);
+        }
     if ($marketplace_id === NULL) {
       return $tax_response;
     }
     $request_data['marketplaceId'] = $marketplace_id;
     $address_data = self::getShippingAddressData($user_profile, $order);
+    if ($debug_mode){
+        $this->logTracking->debug_mode_on($debug_mode,'calculateValidateTax','Address Data Passed in API ',$Email,null,null,$address_data);
+        }
     if (empty($address_data)) {
       return $tax_response;
     }
+
     $request_data['shippingAddress'] = $address_data['address'];
     $customer_data = $address_data['customer'];
     $customer_data['email'] = $order->getEmail();
@@ -444,7 +467,8 @@ class QuiversService {
     $address_data = [];
     try {
         $order_profiles = $order->collectProfiles();
-        if ($order_profiles['shipping']){
+
+        if (isset($order_profiles['shipping'])){
             $address = $order_profiles['shipping']->get('address')->first();
             $this->logTracking->shipping_address($order_profiles['shipping']->get('address')->getValue());
         }
@@ -727,7 +751,13 @@ class QuiversService {
    */
   protected function resolveCustomerProfile(OrderItemInterface $order_item) {
     $order = $order_item->getOrder();
+    $config = $this->quiversConfig->get();
+    $debug_mode = $config["debug_mode"];
     $customer_profile = $order->getBillingProfile();
+    $Email = $order->getEmail();
+    if ($debug_mode){
+        $this->logTracking->debug_mode_on($debug_mode,'resolveCustomerProfile','GET CUSTOMER PROFILE',$Email,null,null,$customer_profile);
+        }
     // A shipping profile is preferred, when available.
     $event = new CustomerProfileEvent($customer_profile, $order_item);
     $this->eventDispatcher->dispatch(TaxEvents::CUSTOMER_PROFILE, $event);

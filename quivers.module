@@ -3,7 +3,8 @@
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
-
+use Drupal\field\Entity\FieldConfig;
+use Drupal\Core\Entity\Entity\EntityViewDisplay;
 /**
  * Implements hook_entity_base_field_info().
  */
@@ -30,16 +31,7 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setDisplayConfigurable('view', TRUE);
 
 
-      $fields['taxcode'] = BaseFieldDefinition::create('list_string')
-      ->setLabel(t('Taxcode'))
-      ->setRevisionable(TRUE)
-      ->setTranslatable(FALSE)
-      ->setDisplayOptions('form', [
-        'region' => 'hidden',
-        'weight' => 0,
-      ])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
+
   }
 
   if ($entity_type->id() === 'commerce_product_variation') {
@@ -81,27 +73,6 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
       ])
       ->setDisplayConfigurable('view', TRUE);
 
-     $fields['upc_hidden_value'] = BaseFieldDefinition::create('list_string')
-      ->setLabel(t('UPC HIDDEN'))
-      ->setRevisionable(TRUE)
-      ->setTranslatable(FALSE)
-      ->setDisplayOptions('form', [
-        'region' => 'hidden',
-        'weight' => 0,
-      ])
-      ->setDisplayConfigurable('form', FALSE)
-      ->setDisplayConfigurable('view', FALSE);
-
-     $fields['upc'] = BaseFieldDefinition::create('list_string')
-      ->setLabel(t('UPC'))
-      ->setRevisionable(TRUE)
-      ->setTranslatable(FALSE)
-      ->setDisplayOptions('form', [
-        'region' => 'hidden',
-        'weight' => 0,
-      ])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
     }
 
   if ($entity_type->id() === 'commerce_order_item') {
@@ -121,7 +92,7 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setRevisionable(TRUE)
       ->setTranslatable(FALSE)
       ->setDisplayOptions('form', [
-        'region' => 'hidden',
+        'type' => 'hidden',
         'weight' => 0,
       ])
       ->setDisplayConfigurable('form', TRUE)
@@ -170,84 +141,67 @@ function quivers_entity_base_field_info(EntityTypeInterface $entity_type) {
 
   return $fields;
 }
-
-
 function Quivers_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id)
  {
-    $product = \Drupal::routeMatch()->getParameter('commerce_product');
-    $product_id = $product != null ?$product->id() : null;
-
-    if(array_key_exists('class',$form['#attributes']) && array_key_exists('1',$form['#attributes']['class']) && $form['#attributes']['class'][1] =='commerce-product-form'){
-    $formname = str_replace('-', '_', $form['#attributes']['class'][0]);
-        if($form_id == $formname) {
-            $taxcode =null;
-            $db = \Drupal::database();
-            $type ='default';
-            $query = $db->select('commerce_product_field_data', 'taxcode');
-            $query->fields('taxcode');
-            $query->condition('product_id', $product_id, "=");
-            $result = $query->execute();
-
-            foreach($result as $row){
-              $taxcode = $row->taxcode;
-              $type = $row->type;
-            }
-
-            $form['taxcode'] = array(
-              '#type' => 'textfield',
-              '#name'=> 'taxcode',
-              '#required' => FALSE,
-              '#title' => t('Taxcode'),
-              '#weight' => 15,
-              '#default_value' =>  $taxcode
-            );
-
-
+  $form['upc_hidden'] = array(
+    '#attributes' => array('class' => array('visualy-hidden')),
+  );
+  if(isset($form['upc']['widget'][0]['value']['#default_value'])){
+    $form['upc_hidden']['widget'][0]['value']['#default_value'] = $form['upc'];
+  }
+  if ($form_id === 'commerce_checkout_flow_multistep_default' && $form['#step_id'] == 'review'){
+  try{
+      $order_id = $form["sidebar"]["coupon_redemption"]["form"]["#configuration"]["order_id"];
+      $address = $form["stripe_review"]["#attached"]["drupalSettings"]["commerceStripe"]["shipping"];
+      $order = \Drupal\commerce_order\Entity\Order::load($order_id);
+      $price = print_r($order->getTotalPrice(), true);
+      $order_shipment_amt = 0;
+      foreach ($order->get('shipments')->referencedEntities() as $shipment) {
+        $amt = $shipment->getAmount();
+        if ($amt !== NULL){
+           $order_shipment_amt = $order_shipment_amt + $amt->getNumber();
         }
-    }
-
-    $product_variation = \Drupal::routeMatch()->getParameter('commerce_product_variation');
-    $product_variant_id = $product_variation != null ?$product_variation->id() : null;
-    $upc_hidden_value = \Drupal::config('quivers.settings')->get('upc_field');
-    if(array_key_exists('class',$form['#attributes']) && array_key_exists('1',$form['#attributes']['class']) && $form['#attributes']['class'][1] =='commerce-product-variation-form'){
-        if(strpos($form_id, "commerce_product_variation") == 0) {
-            $upc = null;
-            $db = \Drupal::database();
-            $type ='default';
-            $query = $db->select('commerce_product_variation_field_data', 'upc');
-            $query->fields('upc');
-            $query->condition('variation_id', $product_variant_id, "=");
-            $result = $query->execute();
-
-            foreach($result as $row){
-              $upc = $row->upc;
-              $type = $row->type;
-            }
-
-            $form['upc'] = array(
-              '#type' => 'textfield',
-              '#name'=> 'upc',
-              '#required' => FALSE,
-              '#title' => t('UPC'),
-              '#weight' => 15,
-              '#default_value' =>  $upc,
-            );
-
-            $form['upc_hidden_value'] = array(
-              '#type' => 'hidden',
-              '#name'=> 'upc_hidden_value',
-              '#required' => FALSE,
-              '#title' => t('UPC HIDDEN VALUE'),
-              '#weight' => 15,
-              '#default_value' =>  $upc_hidden_value,
-            );
-
-        }
-    }
-
-   if ($form_id == "quivers_config_settings" || $form_id == "quivers_tax_config_settings" ){
-       $form['#attached']['library'][] = 'quivers/select2.quivers';
-     }
+      }
+      $data = [
+        "shipping_address" => $address,
+        "Customer_mail" => $order->getEmail(),
+        "Total_price" => $price,
+        "Order_Shipment_amt" => $order_shipment_amt
+      ];
+      $client = \Drupal::httpClient();
+      $config_factory = \Drupal::ConfigFactory();
+      $quiversettings = $config_factory->get('quivers.settings');
+      $quiversettings = $quiversettings->get();
+      $logdata = [
+    		"api_key" => $quiversettings['quivers_api_key'],
+    		"uuid" => $quiversettings['middleware_profile_id'],
+        "type" => "FINAL ORDER DETAILS",
+    		"log_data" => $data
+    	];
+    	if ($quiversettings['api_mode'] == "production"){
+    	  $response = $client->post('https://middleware.quivers.com/profile/logs/',
+          ['json' => $logdata]
+        );
+    	}
+    	else{
+    	  $response = $client->post('https://middleware.quiversdemo.com/profile/logs/',
+          ['json' => $logdata]
+        );
+    	}
+      }
+  catch(Exception $e) {
+      $error = ["error" => "Erorr Alert - Something Missing"];
+      if ($quiversettings['api_mode'] == "production"){
+    	  $response = $client->post('https://middleware.quivers.com/profile/logs/',
+          ['json' => $error]
+        );
+    	}
+    	else{
+    	  $response = $client->post('https://middleware.quiversdemo.com/profile/logs/',
+          ['json' => $error]
+        );
+    	}
+  }
+  }
     return $form;
 }
-

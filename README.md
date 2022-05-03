@@ -48,3 +48,34 @@ CONFIGURATION
 * Go to Commerce > Configuration > Checkout flows > Shipping > Edit.
   Make sure Transaction mode for 'Payment process' is set to
   'Authorize only'.
+
+# SETUP WITH DOCKER
+
+* Docker Installation
+
+    Install Docker on Ubuntu -> https://docs.docker.com/install/linux/docker-ce/ubuntu/
+
+    Install Docker on CentOS -> https://docs.docker.com/install/linux/docker-ce/centos/
+
+    Install Docker on MacOS -> https://docs.docker.com/docker-for-mac/install/
+
+    Install Docker on Windows -> https://docs.docker.com/docker-for-windows/install/
+
+* Project setup 
+
+    1. git clone <repository-url>
+
+    2. cd quivers.plugin.drupal/
+    
+    3. sudo docker-compose build && sudo docker-compose up -d
+
+    4. Install drupal using the installation gui using the url - http://localhost:8080
+
+    Values like Database Name, Database User, Database Password and Database Host are defined in the "ENV" file. You can also update the values of the variables before building the container (step 2). You will need these values while installing drupal. 
+
+    5. id=$(sudo docker ps -aqf "name=quiversplugindrupal_drupal_1")
+
+    6. sudo docker exec -it $id drupal-modules
+
+    
+

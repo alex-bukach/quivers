@@ -26,6 +26,9 @@ quivers.settings:
     upc_field:
       type: string
       label: 'UPC Field'
+    debug_mode:
+      type: string
+      label: 'Debug Mode'
     middleware_profile_id:
       type: string
       label: 'Middleware Profile Id'

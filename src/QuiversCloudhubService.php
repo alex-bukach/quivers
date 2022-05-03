@@ -30,8 +30,8 @@ class QuiversCloudhubService {
    *   Quivers Settings Form array values.
    */
   public function getQuiversProductGroups(array $values) {
-    $quivers_marketplaces = [];
-    $quivers_claiming_groups = [];
+    $quivers_marketplaces = array();
+    $quivers_claiming_groups =array();
 
     $quivers_cloudhub_client = $this->clientFactory->createCloudhubInstance($values);
     $claim_response = $quivers_cloudhub_client->get('v1/private/ClaimingPolicies/GetByBusiness?refId=' . $values['business_refid']);
@@ -44,7 +44,7 @@ class QuiversCloudhubService {
       $quivers_claiming_groups = array_merge($quivers_claiming_groups, [' '.$claim_group['Id']=> $claim_group['Name']]);
       }
     }
-
+    
     foreach ($product_groups as $product_group) {
       if ($product_group['Type'] === 'Marketplace') {
         $quivers_marketplaces = array_merge($quivers_marketplaces, [$product_group['Id'] => $product_group['Name']]);

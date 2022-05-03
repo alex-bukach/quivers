@@ -91,7 +91,7 @@ class ConfigSettingsForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('quivers.settings');
     $sync_error = $this->quiversMiddlewareService->verifyProfileStatus($config->get(), FALSE);
- 
+
     if ($sync_error) {
       $this->messenger->addMessage($sync_error, "SYNC_STATUS");
     }
@@ -122,7 +122,7 @@ class ConfigSettingsForm extends ConfigFormBase {
       '#required' => TRUE,
       '#description' => $this->t('The mode to use when connecting to Quivers.'),
     ];
-   
+
     // Quivers Middleware Configuration.
     $form['profile_configuration'] = [
       '#type' => 'details',
@@ -189,6 +189,18 @@ class ConfigSettingsForm extends ConfigFormBase {
       '#attributes' => array('title' => 'Since UPC is not a standard field in [e-commerce platform name], you can use UPC Field to provide the custom field that you have created on the product page to refer to when syncing UPCs. Please note that you should provide the field name from the API that represents your UPC field on the UI'),
     ];
 
+   $form['profile_configuration']['debug_mode'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Quivers Debug Mode:'),
+        '#options' => array(
+                    FALSE => t('OFF'),
+                    TRUE => t('ON'),
+                    ),
+        '#default_value' => $config->get('debug_mode'),
+        '#required' => FALSE,
+        '#maxlength' => 1024,
+      ];
+
       if(isset($_SESSION['Quivers']) && is_array($_SESSION['Quivers']['feild_id'])) {
           $form['#attached']['html_head'][] = [[
             '#tag' => 'script',
@@ -227,6 +239,7 @@ class ConfigSettingsForm extends ConfigFormBase {
     ->set('client_secret', $form_state->getValue('client_secret'))
     ->set('refresh_token', $form_state->getValue('refresh_token'))
     ->set('upc_field', $form_state->getValue('upc_field'))
+    ->set('debug_mode', $form_state->getValue('debug_mode'))
     ->save();
     $upc_field = $form_state->getValue('upc_field');
     $db = \Drupal::database();
@@ -299,9 +312,10 @@ class ConfigSettingsForm extends ConfigFormBase {
       'quivers_marketplaces' => [],
       'quivers_claiming_groups' => [],
     ];
-    try {
 
+    try {
       $quivers_product_groups = $this->quiversCloudhubService->getQuiversProductGroups($values);
+
       $this->config('quivers.settings')
       ->set('quivers_marketplaces', $quivers_product_groups['quivers_marketplaces'])
       ->set('quivers_claiming_groups', $quivers_product_groups['quivers_claiming_groups'])
@@ -317,6 +331,8 @@ class ConfigSettingsForm extends ConfigFormBase {
        $this->messenger->addError("Failed to conect to Quivers. Please check if the settings in Quivers and Quivers tax Tabs are saved correctly. If the issue still persists,please contact 'enterprise@quivers.com' for further assistance.");
     }
     $config = $this->config('quivers.settings');
+
+
     if($config->get('status')=== "Active") {
       $url =str_replace("quivers","quivers-tax",\Drupal::request()->headers->get('referer'));
        header("LOCATION: ".$url);

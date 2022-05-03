@@ -4,28 +4,116 @@
  * @file
  * Install, update and uninstall functions for the Quivers module.
  */
-
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Field\FieldStorageDefinition;
+use Drupal\Core\Entity\Entity\EntityViewDisplay;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
 
 
-function quivers_update_8203() {
-  $entity_manager = \Drupal::entityManager(); 
-  $definition = $entity_manager->getFieldStorageDefinitions('commerce_product')['taxcode'];
-  $entity_manager->onFieldStorageDefinitionCreate($definition);
+function quivers_update_8901() {
+    FieldStorageConfig::create(array(
+        'field_name' => 'taxcode',
+        'entity_type' => 'commerce_product',
+        'type' => 'string',
+        'cardinality' => 1,
+        ))->save();
+    FieldConfig::create([
+    'field_name' => 'taxcode',
+    'entity_type' => 'commerce_product',
+    'bundle' => 'default', // content type
+    'label' => 'Taxcode',
+    ])->save();
+    // Manage form display
+    $form_display = \Drupal::service('entity_display.repository')->getFormDisplay('commerce_product', 'default' );
+    $form_display = $form_display->setComponent('taxcode', ['type' => 'text_textfield']);
+    $form_display->save();
+    // Manage view display
+    $view_display = \Drupal::service('entity_display.repository')->getViewDisplay('commerce_product', 'default');
+    $view_display->setComponent('taxcode', ['type' => 'text_default']);
+    $view_display->save();
+}
+
+function quivers_update_8902() {
+    FieldStorageConfig::create(array(
+        'field_name' => 'upc',
+        'entity_type' => 'commerce_product_variation',
+        'type' => 'string',
+        'cardinality' => 1,
+        ))->save();
+    FieldConfig::create([
+    'field_name' => 'upc',
+    'entity_type' => 'commerce_product_variation',
+    'bundle' => 'default', // content type
+    'label' => 'Upc',
+    ])->save();
+    // Manage form display
+    $form_display = \Drupal::service('entity_display.repository')->getFormDisplay('commerce_product_variation', 'default' );
+    $form_display = $form_display->setComponent('upc', ['type' => 'text_textfield']);
+    $form_display->save();
+    // Manage view display
+    $view_display = \Drupal::service('entity_display.repository')->getViewDisplay('commerce_product_variation', 'default');
+    $view_display->setComponent('upc', ['type' => 'text_default']);
+    $view_display->save();
+}
+
+function quivers_update_8903() {
+    FieldStorageConfig::create(array(
+        'field_name' => 'upc_hidden',
+        'entity_type' => 'commerce_product_variation',
+        'type' => 'string',
+        'cardinality' => 1,
+        ))->save();
+    FieldConfig::create([
+    'field_name' => 'upc_hidden',
+    'entity_type' => 'commerce_product_variation',
+    'bundle' => 'default', // content type
+    'label' => 'upc_hidden',
+    ])->save();
+    // Manage form display
+    $form_display = \Drupal::service('entity_display.repository')->getFormDisplay('commerce_product_variation', 'default' );
+    $form_display = $form_display->setComponent('upc_hidden', ['type' => 'text_textfield']);
+    $form_display->save();
+    // Manage view display
+    $view_display = \Drupal::service('entity_display.repository')->getViewDisplay('commerce_product_variation', 'default');
+    $view_display->setComponent('upc_hidden', ['type' => 'text_default']);
+    $view_display->save();
+}
+
+function quivers_uninstall(){
+
+$client = \Drupal::httpClient();
+$config_factory = \Drupal::ConfigFactory();
+$quiversettings = $config_factory->get('quivers.settings');
+$quiversettings = $quiversettings->get();
+$request_data = [
+      "client_type" => "Drupal",
+      "business_refid" => $quiversettings['business_refid'],
+      "api_key" => $quiversettings['quivers_api_key'],
+      "enable_plugin" => 'false',
+      "check_active_flag" => 'true'
+    ];
+
+    if ($quiversettings['api_mode'] == "production"){
+    	  $response = $client->post('https://middleware.quivers.com/profile/create',
+          ['json' => $request_data,'http_errors' => false]
+        );
+    	}
+    else{
+    	  $response = $client->post('https://middleware.quiversdemo.com/profile/create',
+          ['json' => $request_data,'http_errors' => false]
+        );
+    	}
+    $response = json_decode($response->getBody()->getContents());
+
+    //remove view at the uninstall plugin
+    \Drupal::service('config.factory')->getEditable('views.view.current_user')->delete();
+    \Drupal::service('config.factory')->getEditable('views.view.orders_list')->delete();
+    \Drupal::service('config.factory')->getEditable('views.view.payments_list')->delete();
+    \Drupal::service('config.factory')->getEditable('views.view.pricelist')->delete();
+    \Drupal::service('config.factory')->getEditable('views.view.pricelist_item')->delete();
 
 }
 
-function quivers_update_8204() {
-  $entity_manager = \Drupal::entityManager();
-  $definition = $entity_manager->getFieldStorageDefinitions('commerce_product_variation')['upc_hidden_value'];
-  $entity_manager->onFieldStorageDefinitionCreate($definition);
-
-}
-
-function quivers_update_8205() {
-  $entity_manager = \Drupal::entityManager();
-  $definition = $entity_manager->getFieldStorageDefinitions('commerce_product_variation')['upc'];
-  $entity_manager->onFieldStorageDefinitionCreate($definition);
-
-}

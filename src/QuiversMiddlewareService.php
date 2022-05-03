@@ -53,6 +53,7 @@ class QuiversMiddlewareService {
       "client_id" => $values['client_id'],
       "client_secret" => $values['client_secret'],
       "refresh_token" => $values['refresh_token'],
+      "client_upc_key" => $values['upc_field'],
     ];
 
     $response = $this->quiversMiddlewareClient->post('profile/create',
@@ -72,7 +73,7 @@ class QuiversMiddlewareService {
     $marketplaces = $values['marketplaces'];
     $marketplaces_request_data = [];
 
-    foreach ($marketplaces as $marketplace) {
+    foreach ($marketplaces as $key => $marketplace) {
       if (!$marketplace['quivers_marketplace_id']) {
         continue;
       }
@@ -94,12 +95,14 @@ class QuiversMiddlewareService {
     $headers = [
       'uuid' => $this->quiversConfig->get('middleware_profile_id'),
     ];
+  
     $this->quiversMiddlewareClient->post(
       'profile/update/marketplaces', [
         'headers' => $headers,
         'json' => $request_data,
       ]
     );
+ 
   }
 
   /**

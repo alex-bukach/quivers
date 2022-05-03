@@ -80,6 +80,7 @@ class QuiversTax extends RemoteTaxTypeBase {
     $include = false;
     try {
       $order_item_taxes = $this->quiversService->calculateValidateTax($order);
+     
     }
     catch (\Exception $e) {
       // Validate API failed to get Taxes.
@@ -89,9 +90,7 @@ class QuiversTax extends RemoteTaxTypeBase {
       $include = false;
     }
 
-
     $currency_code = $order->getTotalPrice() ? $order->getTotalPrice()->getCurrencyCode() : $order->getStore()->getDefaultCurrencyCode();
-
    if (!empty($order_item_taxes['tax']['taxes']['additional'])) {
       $label =$this->t('Estimated Tax');
       $include =false;

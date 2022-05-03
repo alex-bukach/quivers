@@ -5,12 +5,15 @@
     "homepage": "https://www.drupal.org/sandbox/quiversdevelopment/3023352",
     "license": "GPL-2.0+",
     "require": {
-        "drupal/commerce": "^2.16",
-        "drupal/commerce_stripe": "^1.0-rc3",
-        "drupal/commerce_shipping": "^2.0-beta7",
+        "drupal/core": "^9",
+        "drupal/tracking_number": "2.x-dev",
+        "drupal/commerce": "^2.26",
+        "drupal/commerce_paypal":"^1.0@beta",
+        "drupal/commerce_shipping": "^2.1",
+        "drupal/commerce_stripe": "^1.0@RC",
         "drupal/jsonrpc": "^2.0",
-        "drupal/simple_oauth": "4.5.0",
-        "drupal/tracking_number": "2.x-dev"
+        "drupal/simple_oauth": "^5.0",
+        "league/oauth2-server": "8.0.0"
     },
     "minimum-stability": "dev"
 }

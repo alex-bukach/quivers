@@ -34,9 +34,9 @@ class TaxSettingsForm extends ConfigFormBase {
   /**
    * The entity manager.
    *
-   * @var \Drupal\Core\Entity\EntityManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityManager;
+  protected $entitytypeManager;
 
   /**
    * Constructs a ConfigSettingsForm object.
@@ -54,7 +54,7 @@ class TaxSettingsForm extends ConfigFormBase {
     parent::__construct($config_factory);
     $this->messenger = $messenger;
     $this->quiversMiddlewareService = $quivers_middleware_service;
-    $this->entityManager = $entity_manager;
+    $this->entitytypeManager = $entity_manager;
   }
 
   /**
@@ -230,6 +230,7 @@ class TaxSettingsForm extends ConfigFormBase {
 
     // Get Quivers Ids from Quivers Settings.
     $quivers_config = $this->config('quivers.settings');
+
     if (!$quivers_config->get('quivers_marketplaces')) {
       return $marketplaces;
     }
@@ -237,6 +238,7 @@ class TaxSettingsForm extends ConfigFormBase {
     $marketplaces['quivers_claiming_groups'] = $quivers_config->get('quivers_claiming_groups');
 
     $saved_marketplaces =is_string($saved_marketplaces) == true ? json_decode($saved_marketplaces) : $saved_marketplaces;
+  
     foreach ($saved_marketplaces as $key => $marketplace) {
       $marketplace =  is_object($marketplace)?json_decode(json_encode($marketplace), true):$marketplace;
       $saved_marketplace_store_mappings[$marketplace['store_id']] = [
@@ -245,7 +247,11 @@ class TaxSettingsForm extends ConfigFormBase {
       ];
     }
 
-    $stores = $this->entityManager->getStorage('commerce_store')->loadMultiple();
+    $stores = $this->entitytypeManager->getStorage('commerce_store')->loadMultiple();
+    // var_dump($stores);
+    // var_dump('----------');
+    // var_dump($marketplaces);
+    // exit;
     foreach ($stores as $key => $store) {
       $marketplaces[$key] = [
         'store_label' => $store->label(),
